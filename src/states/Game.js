@@ -10,58 +10,109 @@ import Globals from '../utils/Globals'
 
 export default class extends Phaser.State {
   init() {
-    AtlasGraphic.init(game)
-    Input.init(game)
+    AtlasGraphic.init(this.game)
+    Input.init(this.game)
     this.game.stage.smoothed = false
-      // this.camera.scale.set(4, 4)
     this.camera.roundPx = false
+    this.mode = 'exploration'
   }
   preload() {}
 
   create() {
-    const gameSize = { x: 200, y: 150 }
+    // const sfx = new SFX()
     const gameContainer = this.gameContainer = new Phaser.Group(this.game)
-    gameContainer.scale.set(this.game.width / gameSize.x, this.game.height / gameSize.y)
-      // const sfx = new SFX()
 
-    const chars = this.characters = []
-    for (let index = 0; index < 3; index++) {
-      const c = new Character({ game })
-      if (chars.length > 0) {
-        c.x = index * chars[chars.length - 1].width
-      }
-      chars.push(c)
-    }
-
-    const dungeon = this.dungeon = new Dungeon(this.game)
-
-    this.characters.forEach((char) => {
-      char.bottom = this.dungeon.terrain[0].top
-    })
+    this.characters = this.makeCharacters()
+    this.dungeon = new Dungeon(this.game)
 
     gameContainer.addMultiple([
-      dungeon,
+      this.dungeon,
       ...this.characters
     ])
     this.add.existing(gameContainer)
+    this.setPositions()
+
+    // camera config
+    this.camera.scale.setTo(4)
+      // this.camera.bounds.setTo(0, 0, this.dungeon.right, Globals.height)
+  }
+
+  setPositions() {
+    this.characters.forEach((char) => {
+      char.bottom = this.dungeon.terrain[0].top
+    })
   }
 
   update() {
-    if (Input.actioLeft()) {
-      this.dungeon.move(this.moveSpeed)
+    if (this.mode === 'exploration') {
+      if (Input.actioLeft() && this.leftMostCharacter.left > this.dungeon.left) {
+        this.dungeon.move(this.moveSpeed)
+        this.characters.forEach(c => {
+          c.play(c.anims.walk)
+        })
+      } else if (Input.actionRight() && this.rightMostCharacter.right < this.dungeon.right) {
+        this.dungeon.move(-this.moveSpeed)
+        this.characters.forEach(c => {
+          c.play(c.anims.walk)
+        })
+      } else {
+        this.characters.forEach(c => {
+          c.stop();
+          c.play(c.anims.idle)
+        })
+      }
+
+      if (this.dungeon.terrain[0].x < -150 && this.mode === 'exploration') {
+        this.mode = 'combat'
+        this.setCombatPosition()
+      }
+    } else if (this.mode === 'combat') {
+
     }
-    if (Input.actionRight()) {
-      this.dungeon.move(-this.moveSpeed)
+  }
+
+  setCombatPosition() {
+    this.characters.forEach((c, idx) => {
+      c.stop()
+      c.inputDir = new Phaser.Point()
+      this.game.camera.flash()
+      this.game.add.tween(this.dungeon).to({ alpha: 0 }, 150, Phaser.Easing.Quartic.Out, true)
+      this.game.add.tween(c).to({
+        x: 50 - idx * 15,
+        y: 25 + 32 * idx
+      }, 800, Phaser.Easing.Exponential.Out, true, 200 + idx * 130)
+    })
+  }
+
+  makeCharacters(characterCount = 3) {
+    const chars = []
+    for (let index = 0; index < characterCount; index++) {
+      const c = new Character({ game })
+      c.left = 4
+      if (chars.length > 0) {
+        c.x += index * chars[chars.length - 1].width
+      }
+      chars.push(c)
     }
+    return chars
   }
 
   get moveSpeed() {
     return Globals.moveSpeed * game.time.elapsedMS / 1000
   }
 
+  get leftMostCharacter() {
+    return this.characters[0]
+  }
+
+  get rightMostCharacter() {
+    return this.characters[this.characters.length - 1]
+  }
+
   render() {
     if (__DEV__) {
-      // this.game.debug.spriteInfo(this.mushroom, 32, 32)
+      // this.game.debug.spriteInfo(this.dungeon.terrain[0], 32, 32)
+      // this.game.debug.cameraInfo(this.game.camera, 32, 32);
     }
   }
 }

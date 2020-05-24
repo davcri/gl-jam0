@@ -24,6 +24,10 @@ class InputMap {
     return this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ||
       this.game.input.keyboard.isDown(Phaser.Keyboard.D)
   }
+
+  actionJump() {
+    return this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)
+  }
 }
 
 const Input = new InputMap()

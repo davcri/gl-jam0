@@ -57,7 +57,7 @@ class AtlasGraphic {
 
   getRandomWeapon() {
     const tileIds = [
-      369, 370, 468, 375, 321
+      369, 370, 468, 375, 321, 609, 850, 191
     ]
     return this.getTileById(this.game.rnd.pick(tileIds))
   }
