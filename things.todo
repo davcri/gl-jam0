@@ -1,0 +1,24 @@
+Gameplay:
+    ☐ dungeon random events
+    ☐ Dice mechanic
+    ☐ Character HP
+    ☐ Combat system @started
+
+    Ideas:
+        ☐ Dungeon section with no light ()
+
+SFX and Music:
+    ☐ walk sound
+    ☐ battle music
+    ☐ battle start sound
+    ☐ exploration music
+
+Polish:
+    Characters:
+        ☐ Inclination while walking
+        ☐ Walk dust particles
+        ☐ Add hat
+    ☐ Shadows with black texture on top like Minit
+    ☐ Dungeon environment tiles
+    ☐ Dungeon progress bar
+    ☐ Add colors from palette (investigate on how to light the sprites)    

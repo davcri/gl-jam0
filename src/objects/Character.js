@@ -1,22 +1,32 @@
-import Phaser, { Rectangle, Input, Keyboard } from 'phaser-ce'
+import Phaser from 'phaser-ce'
 import Globals from '../utils/Globals'
 import Atlas from '../utils/AtlasGraphic'
+import Stats from './Stats'
 
 export default class extends Phaser.Group {
   constructor({ game }) {
     super(game, null)
-    this.speed = 100
+
+    this.stats = new Stats({
+      attack: 1,
+      dodge: 1,
+      hp: 20,
+      speed: this.game.rnd.integerInRange(1, 10)
+    })
+
+    this.name = "Character"
 
     // head
-    this.head = Atlas.getRandomHead()
+    this.head = this.makeHead()
 
     // torso
     this.torso = Atlas.getRandomTorso()
     this.torso.scale.set(1, this.game.rnd.pick([0.9, 1.1, 1.0]))
     this.torso.anchor.set(0.5)
-      // helmet
+
+    // helmet
     if (this.game.rnd.normal() > 0) {
-      this.helmet = Atlas.getRandomHelmet()
+      this.helmet = this.makeHelmet()
     }
     // weapon
     this.weapon = Atlas.getRandomWeapon()
@@ -37,32 +47,94 @@ export default class extends Phaser.Group {
       this.add(this.helmet)
     }
 
-    // avoid strange issue with positioning after creation
+    this.currentAnim = null
+      // avoid strange issue with positioning after creation
     this.updateTransform()
-    this.setIdleAnim()
+    this.anims = {
+      idle: this.makeIdleAnims(),
+      walk: this.makeWalkAnim()
+    }
   }
 
-  setIdleAnim() {
+  update() {}
+
+  makeHead() {
+    const spr = Atlas.getRandomHead()
+    spr.anchor.set(0.5, 1)
+    return spr
+  }
+
+  makeHelmet() {
+    const spr = Atlas.getRandomHelmet()
+    spr.anchor.set(0.5, 1)
+    return spr
+  }
+
+  stop() {
+    if (this.currentAnim === null) return
+    this.currentAnim.forEach(twn => {
+      twn.pause()
+    })
+  }
+
+  /**
+   * @param {Phaser.Tween[]} anims 
+   */
+  play(anims) {
+    // if (this.currentAnim === anims && this.currentAnim[0].isPlaying) return
+    this.currentAnim = anims
+    anims.forEach(twn => {
+      if (twn.isPaused) {
+        twn.resume()
+      } else {
+        twn.start()
+      }
+    })
+  }
+
+  makeWalkAnim() {
+    const walkAnims = []
+    const duration = this.game.rnd.integerInRange(100, 200)
+
+    const characterTwn = this.game.add.tween(this).to({
+      y: '-1',
+    }, duration, Phaser.Easing.Quadratic.InOut, false, 0, -1, true)
+    walkAnims.push(characterTwn)
+    return walkAnims
+  }
+
+  makeIdleAnims() {
+    const idleAnims = []
     const idleTime = this.game.rnd.integerInRange(700, 1000)
-    this.game.add.tween(this.head).to({
+
+    const ease = this.game.rnd.weightedPick([
+      Phaser.Easing.Quadratic.InOut,
+      Phaser.Easing.Cubic.InOut,
+    ])
+    const randomAngle = this.game.rnd.integerInRange(-4, 1)
+    const headTwn = this.game.add.tween(this.head).to({
       y: '-.5',
-    }, idleTime, Phaser.Easing.Quadratic.InOut, true, 0, -1, true)
+      angle: randomAngle
+    }, idleTime, ease, false, 0, -1, true)
     if (this.helmet) {
-      this.game.add.tween(this.helmet).to({
+      const helmetTwn = this.game.add.tween(this.helmet).to({
         y: '-.5',
-      }, idleTime, Phaser.Easing.Quadratic.InOut, true, 0, -1, true)
+        angle: randomAngle
+      }, idleTime, ease, false, 0, -1, true)
+      idleAnims.push(helmetTwn)
     }
-    this.game.add.tween(this.torso.scale).to({
+    const torsoTwn = this.game.add.tween(this.torso.scale).to({
       x: '-0.05',
-    }, idleTime, Phaser.Easing.Quadratic.InOut, true, 0, -1, true)
-    this.game.add.tween(this.weapon).to({
+    }, idleTime, ease, false, 0, -1, true)
+    const weaponTwn = this.game.add.tween(this.weapon).to({
       x: '-1',
       y: '-1',
       angle: -5,
-    }, idleTime, Phaser.Easing.Quadratic.InOut, true, 0, -1, true)
-  }
+    }, idleTime, ease, false, 0, -1, true)
 
-  update() {
-
+    idleAnims.push(headTwn)
+    idleAnims.push(torsoTwn)
+    idleAnims.push(weaponTwn)
+    return idleAnims
   }
 }
