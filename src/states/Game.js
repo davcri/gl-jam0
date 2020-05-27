@@ -13,8 +13,11 @@ export default class extends Phaser.State {
   init() {
     AtlasGraphic.init(this.game)
     Input.init(this.game)
+    // make the canvas fit the available space
+    this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     this.game.stage.smoothed = false
     this.camera.roundPx = false
+    
     this.mode = 'exploration'
   }
   preload() {}

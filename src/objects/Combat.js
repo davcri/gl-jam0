@@ -26,7 +26,7 @@ export default class extends Phaser.Group {
   }
 
   setPositions() {
-    this.gui.bottom = Globals.height
+    this.gui.bottom = Globals.height - 8
     this.gui.centerX = Globals.width / 2
   }
 
