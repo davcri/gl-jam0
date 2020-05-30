@@ -4,11 +4,13 @@ import Globals from '../utils/Globals'
 import Character from './Character'
 import Dungeon from './Dungeon'
 import Combat from './Combat/Combat'
+import SFX from './SFX'
 
 export default class GameContainer extends Phaser.Group {
   constructor(game) {
     super(game)
 
+    this.sfx = new SFX()
     this.showStartScreen()
   }
 
@@ -50,6 +52,7 @@ export default class GameContainer extends Phaser.Group {
     text.centerX = Globals.center.x
 
     this.game.input.onDown.addOnce(() => {
+      this.sfx.startGame()
       this.game.camera.flash()
       text.destroy()
       this.sprs.forEach(spr => spr.destroy())
