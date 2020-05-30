@@ -1,25 +1,8 @@
 import Stats from '../objects/Stats'
+import EnemyData from '../objects/Combat/EnemyData'
 
-/**
- * @typedef {Object} EnemyDataConf
- * @property {string} name
- * @property {number} tileId
- * @property {number} tier
- * @property {Stats} stats
- */
-class EnemyData {
-  /**
-   * @param {EnemyDataConf} data 
-   */
-  constructor(data) {
-    this.name = data.name
-    this.tileId = data.tileId
-    this.tier = data.tier
-    this.stats = data.stats
-  }
-}
 
-class _Enemies {
+class Enemies {
   constructor() {
     const tier0 = [
       new EnemyData({
@@ -55,6 +38,4 @@ class _Enemies {
   toJSON() {}
 }
 
-
-const Enemies = new _Enemies()
-export default Enemies
+export default new Enemies()

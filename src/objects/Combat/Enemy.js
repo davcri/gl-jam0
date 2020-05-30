@@ -1,5 +1,5 @@
-import Atlas from "./utils/AtlasGraphic";
-import Enemies from "./data/Enemies";
+import Atlas from "../../utils/AtlasGraphic";
+import Enemies from "../../data/Enemies";
 
 export default class Enemy extends Phaser.Group {
   constructor(game, tier = 0) {

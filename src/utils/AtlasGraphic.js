@@ -62,6 +62,10 @@ class AtlasGraphic {
     return this.getTileById(this.game.rnd.pick(tileIds))
   }
 
+  getRandomTile() {
+    return this.getTileById(this.game.rnd.integerInRange(0, LAST_TILE_ID))
+  }
+
   getTileById(id) {
     if (id > LAST_TILE_ID || id < 0) {
       const spr = this.getWhiteSquare()
