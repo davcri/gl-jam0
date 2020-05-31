@@ -28,7 +28,7 @@ export default class Totem extends Phaser.Group {
     }
 
     /**
-     * Used to build the tome at each battle start.
+     * Used to build the totem at each battle start.
      * 
      * @type {Piece}
      */

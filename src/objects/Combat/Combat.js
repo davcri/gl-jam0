@@ -48,17 +48,18 @@ export default class extends Phaser.Group {
    */
   onPiecePressed(piece) {
     const target = this.totem.getNextPiecePosition()
+    
     this.game.add.tween(piece).to({
-      x: target.x,
-      y: target.y
-    }, 200, Phaser.Easing.Exponential.InOut, true)
+      x: this.toLocal(target, this.totem).x,
+      y: this.toLocal(target, this.totem).y
+    }, 300, Phaser.Easing.Exponential.InOut, true)
     this.totem.addPiece(piece)
   }
 
   setPositions() {
     this.totem.position.set(70, 80)
-    this.gui.bottom = Globals.height - 8
-    this.gui.centerX = Globals.width / 2
+    // this.gui.bottom = Globals.height - 8
+    // this.gui.centerX = Globals.width / 2
   }
 
   makeTurns() {

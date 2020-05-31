@@ -1,4 +1,5 @@
 import Atlas from "../../utils/AtlasGraphic";
+import Globals from "../../utils/Globals";
 
 export default class extends Phaser.Group {
   /**
@@ -12,18 +13,20 @@ export default class extends Phaser.Group {
     }
 
     this.pieces = pieces
-    this.pieces[0].x = 30
+    this.pieces[0].x = 50
 
     this.pieces.forEach((piece, index) => {
       if (index !== 0) {
         piece.x = this.pieces[index -1].right + 4
       }
+      piece.bottom = Globals.height - 8
       piece.sprite.inputEnabled = true
       piece.sprite.events.onInputDown.add(() => {
         if (this.game.tweens.isTweening(piece)) return
         this.signals.piecePressed.dispatch(piece)
       })
     });
+    // TODO: Decide UI for pieces. Center pieces? 
 
     this.addMultiple(this.pieces)
   }
