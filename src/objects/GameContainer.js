@@ -46,15 +46,17 @@ export default class GameContainer extends Phaser.Group {
       randomAnim(spr, index)
     }
 
-    const text = this.game.add.text(Globals.center.x, Globals.height - 30, 'TOUCH TO START', {
-      fontSize: 14,
+    const touchText = this.game.add.text(Globals.center.x, Globals.height - 30, 'PRESS TO START', {      // fontSize: ,
+      fontSize: 32,
+      font: 'Squarebit'
     })
-    text.centerX = Globals.center.x
+    touchText.scale.set(0.5)
+    touchText.centerX = Globals.center.x
 
     this.game.input.onDown.addOnce(() => {
       this.sfx.startGame()
       this.game.camera.flash()
-      text.destroy()
+      touchText.destroy()
       this.sprs.forEach(spr => spr.destroy())
       this.startGame()
     })

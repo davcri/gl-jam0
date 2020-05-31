@@ -11,6 +11,9 @@ export default class Totem extends Phaser.Group {
     constructor(game) {
         super(game)
 
+        this.signals = {
+            totemBuilt: new Phaser.Signal(), // emitted once per battle, after the user positioned the 3rd piece
+        }
         this.name = `Totem`;
         /**
          * @type {Piece[]}
@@ -40,7 +43,7 @@ export default class Totem extends Phaser.Group {
         const tmp = this.pieces[Totem.MAX_SIZE - this.freeSlots]
         this.pieces[Totem.MAX_SIZE - this.freeSlots] = piece
         tmp.destroy()
-        this.debugPieces()
+        if (this.freeSlots === 0) this.signals.totemBuilt.dispatch()
     }
 
     /**

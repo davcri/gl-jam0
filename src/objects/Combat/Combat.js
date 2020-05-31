@@ -41,6 +41,7 @@ export default class extends Phaser.Group {
 
   connectSignals() {
     this.gui.signals.piecePressed.add(this.onPiecePressed, this)
+    this.totem.signals.totemBuilt.add(this.onTotemBuilt, this)
   }
 
   /**
@@ -54,6 +55,10 @@ export default class extends Phaser.Group {
       y: this.toLocal(target, this.totem).y
     }, 300, Phaser.Easing.Exponential.InOut, true)
     this.totem.addPiece(piece)
+  }
+
+  onTotemBuilt() {
+    this.gui.showActions()
   }
 
   setPositions() {
