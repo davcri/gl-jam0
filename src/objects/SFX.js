@@ -3,28 +3,56 @@ import * as Tone from 'tone'
 
 export default class SFX {
   constructor() {    
-    // create a synth and connect it to the master output (your speakers)
-    this.baseSynth = new Tone.Synth().toMaster();
+    this.baseSynth = new Tone.Synth().toMaster()
     this.pluclSynth = new Tone.PluckSynth().toMaster()
     this.membraneSynth = new Tone.MembraneSynth().toMaster()
-    //Synths are capable of a wide range of sounds depending on their settings
     this.synthA = this.makeSynthA()
     this.synthB = this.makeSynthB()
     this.polySynth = this.makePolysynth()
+    this.noise = new Tone.Noise('brown').start()
+    
+    // step audio
+    this.stepAudio = new Tone.NoiseSynth('brown')
+      .chain(new Tone.Volume(-20), Tone.Master)
 
     // current synth
     this.synth = this.synthB
 
     Tone.Transport.bpm.value = 120 // 120bpm is default
 
-    this.demoFilters()
+    this.membraneSynth.triggerAttackRelease('c1')
+    // this.demoFilters()
     // this.demo3()
     // this.demo5Effects()
     // this.demo4Synths()
   }
 
   startGame() {
+    const autoFilter = new Tone.AutoFilter({
+      "frequency" : "8m",
+      "min" : 800,
+      "max" : 15000
+    });
+    const vol = new Tone.Volume(-20)
+    this.noise.connect(autoFilter)
+    this.noise.chain(autoFilter, vol, Tone.Master)
+    autoFilter.start()
+    
     this.polySynth.triggerAttackRelease(['C4', 'E4', 'G4', 'B4'], '0.1')
+  }
+
+  buttonPress() {
+  }
+
+  buttonRelease() {
+  }
+
+  battleStarted() {
+  }
+
+  step() {
+    // this.polySynth.triggerAttackRelease(['C4', 'E4', 'G4', 'B4'], '0.1')
+    this.stepAudio.triggerAttackRelease(0.01 + 0.1*Math.random())
   }
 
   makePolysynth() {

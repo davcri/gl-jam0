@@ -12,6 +12,8 @@ export default class GameContainer extends Phaser.Group {
 
     this.sfx = new SFX()
     this.showStartScreen()
+    // ms since a walk button was pressed. Used for audio
+    this.pressedTime = 0  
   }
 
   showStartScreen() {
@@ -91,11 +93,21 @@ export default class GameContainer extends Phaser.Group {
         this.characters.forEach(c => {
           c.play(c.anims.walk)
         })
+        if (this.pressedTime >= 300) {
+          this.sfx.step()
+          this.pressedTime = 0
+        }
+        this.pressedTime += this.game.time.elapsedMS
       } else if (Input.actionRight() && this.rightMostCharacter.right < this.dungeon.right) {
         this.dungeon.move(-this.moveSpeed)
         this.characters.forEach(c => {
           c.play(c.anims.walk)
         })
+        if (this.pressedTime >= 300) {
+          this.sfx.step()
+          this.pressedTime = 0
+        }
+        this.pressedTime += this.game.time.elapsedMS
       } else {
         this.characters.forEach(c => {
           c.stop();
@@ -103,7 +115,7 @@ export default class GameContainer extends Phaser.Group {
         })
       }
 
-      if (this.dungeon.terrain[0].x < -50 && this.mode === 'exploration') {
+      if (this.dungeon.terrain[0].x < -250 && this.mode === 'exploration') {
         this.mode = 'combat'
         this.setCombatPosition()
         this.combat.start()
