@@ -7,12 +7,26 @@ export default class extends Phaser.Group {
   constructor({ game }) {
     super(game, null)
 
+    /**
+     * Base stats, they change only on level up.
+     * Used as a base for combat stats
+     */
     this.stats = new Stats({
-      attack: 1,
-      dodge: 1,
-      hp: 20,
+      attack: 10 + this.game.rnd.integerInRange(0, 4),
+      defense: 10 + this.game.rnd.integerInRange(0, 4),
+      hp: 40 + this.game.rnd.integerInRange(0, 20),
       speed: this.game.rnd.integerInRange(1, 10)
     })
+
+    /**
+     * Used in combat. They are modified during combat thanks to totem pieces and buffs
+     */
+    this.combatStats = new Stats({
+      attack: this.stats.attack,
+      defense: this.stats.defense,
+      hp: this.stats.hp,
+      speed: this.stats.speed
+    });
 
     this.name = "Character"
 
@@ -92,6 +106,9 @@ export default class extends Phaser.Group {
     })
   }
 
+  /**
+   * @returns {Phaser.Tween[]}
+   */
   makeWalkAnim() {
     const walkAnims = []
     const duration = this.game.rnd.integerInRange(100, 200)

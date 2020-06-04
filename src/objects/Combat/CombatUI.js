@@ -22,15 +22,17 @@ export default class extends Phaser.Group {
       }
       piece.bottom = Globals.height - 8
       piece.sprite.inputEnabled = true
-      piece.sprite.events.onInputDown.add(() => {
-        if (this.alpha === 0) return
-        if (this.game.tweens.isTweening(piece)) return
-        this.signals.piecePressed.dispatch(piece)
-      })
+      piece.sprite.events.onInputDown.add(() => this.onPiecePressed(piece))
     });
     // TODO: Decide UI for pieces. Center pieces? 
 
     this.addMultiple(this.pieces)
+  }
+
+  onPiecePressed(piece) {
+    if (this.alpha === 0) return
+    if (this.game.tweens.isTweening(piece)) return
+    this.signals.piecePressed.dispatch(piece)
   }
 
   showActions() {

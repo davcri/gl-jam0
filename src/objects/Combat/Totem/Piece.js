@@ -1,6 +1,9 @@
 import PieceData from "./PieceData"
 import Atlas from '../../../utils/AtlasGraphic'
 
+/**
+ * Totem piece
+ */
 export default class extends Phaser.Group {
     /**
      * @param {Phaser.Game} game 
@@ -8,6 +11,11 @@ export default class extends Phaser.Group {
      */
     constructor(game, pieceData) {
         super(game)
+
+        this.data = {
+            isInTotem: false,
+            previousGuiPos: new Phaser.Point()
+        }
 
         this.name = `Piece - ${pieceData.name}`
         this.tileId = pieceData.tileId

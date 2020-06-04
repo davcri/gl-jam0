@@ -3,7 +3,7 @@
  * @property {number} hp
  * @property {number} speed
  * @property {number} attack
- * @property {number} dodge
+ * @property {number} defense
  */
 export default class {
   /**
@@ -13,6 +13,6 @@ export default class {
     this.hp = data.hp
     this.speed = data.speed
     this.attack = data.attack
-    this.dodge = data.dodge
+    this.defense = data.defense
   }
 }

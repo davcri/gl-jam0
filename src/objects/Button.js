@@ -26,6 +26,10 @@ export default class Button extends Phaser.Group {
     label.alignIn(buttonSpr, Phaser.CENTER)
     // label.padding.set(10, 10)
 
+    this.data = {
+      originalScale: new Phaser.Point(this.scale.x, this.scale.y)
+    }
+
     this.addMultiple([
         buttonSpr,
         label
@@ -34,11 +38,12 @@ export default class Button extends Phaser.Group {
     // enable input
     buttonSpr.inputEnabled = true
     buttonSpr.events.onInputDown.add(() => {
-      this.scale.set(0.95)
+      this.data.originalScale = new Phaser.Point(this.scale.x, this.scale.y)
+      this.scale.set(this.scale.x * 0.95)
       this.pressed.dispatch()
     })
     buttonSpr.events.onInputUp.add(() => {
-      this.scale.set(1)
+      this.scale.set(this.data.originalScale.x)
       this.released.dispatch()
     })
   }

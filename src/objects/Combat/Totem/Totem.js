@@ -23,6 +23,7 @@ export default class Totem extends Phaser.Group {
         const overlap = 2 //px
         for (let index = 0; index < this.pieces.length; index++) {
             this.pieces[index] = new Piece(this.game, Pieces.PLACEHOLDER)
+            this.pieces[index].position.set(70, 60)
             if (index === 0) continue
             this.pieces[index].bottom = this.pieces[index - 1].top + overlap
         }
@@ -40,10 +41,21 @@ export default class Totem extends Phaser.Group {
             console.error('Totem Error: MAX_SIZE reached. Cannot add another piece')
             return
         }
-        const tmp = this.pieces[Totem.MAX_SIZE - this.freeSlots]
-        this.pieces[Totem.MAX_SIZE - this.freeSlots] = piece
+        const tmp = this.pieces[this.freeSlotIndex]
+        this.pieces[this.freeSlotIndex] = piece
         tmp.destroy()
         if (this.freeSlots === 0) this.signals.totemBuilt.dispatch()
+        return this.freeSlotIndex
+    }
+
+    pop() {
+        const removedPiece = this.pieces[this.topPieceIndex]
+        const placeholder = new Piece(this.game, Pieces.PLACEHOLDER)
+        placeholder.position.copyFrom(removedPiece.position)
+        this.pieces[this.topPieceIndex] = placeholder 
+        
+        this.add(placeholder)
+        return removedPiece
     }
 
     /**
@@ -57,9 +69,22 @@ export default class Totem extends Phaser.Group {
         return this.pieces[Totem.MAX_SIZE - this.freeSlots]
     }
 
+    get topPiece() {
+        return this.pieces[this.topPieceIndex]
+    }
+    
+    get topPieceIndex() {
+        return Totem.MAX_SIZE - this.freeSlots - 1
+    }
+
+    get freeSlotIndex() {
+        if (this.topPieceIndex >= 2) return -1
+        return this.topPieceIndex + 1
+    }
+
     get freeSlots() {
         let count = 0
-        this.pieces.forEach(p => {
+        this.pieces.forEach((p, index) => {
             if (p.placeholder) {
                 count++
             }

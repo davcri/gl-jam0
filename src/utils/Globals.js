@@ -6,6 +6,14 @@ export default {
     x: 120,
     y: 80
   },
+  fontStyles: {
+    normal: {
+        font: 'Squarebit',
+        fontSize: 32,
+        font: 'Squarebit',
+        fill: '#fbf5ef',
+    }
+  },
   // PALETTE https://lospec.com/palette-list/oil-6
   palette: [
     0xfbf5ef,

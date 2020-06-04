@@ -92,8 +92,8 @@ export default class GameContainer extends Phaser.Group {
         this.dungeon.move(this.moveSpeed)
         this.characters.forEach(c => {
           c.play(c.anims.walk)
-        })
-        if (this.pressedTime >= 300) {
+        })        
+        if (this.pressedTime >= this.characters[0].anims.walk[0].totalDuration * 2) {
           this.sfx.step()
           this.pressedTime = 0
         }
@@ -103,7 +103,7 @@ export default class GameContainer extends Phaser.Group {
         this.characters.forEach(c => {
           c.play(c.anims.walk)
         })
-        if (this.pressedTime >= 300) {
+        if (this.pressedTime >= this.characters[0].anims.walk[0].totalDuration * 2) {
           this.sfx.step()
           this.pressedTime = 0
         }
@@ -115,7 +115,7 @@ export default class GameContainer extends Phaser.Group {
         })
       }
 
-      if (this.dungeon.terrain[0].x < -250 && this.mode === 'exploration') {
+      if (this.dungeon.terrain[0].x < -150 && this.mode === 'exploration') {
         this.mode = 'combat'
         this.setCombatPosition()
         this.combat.start()
@@ -134,7 +134,7 @@ export default class GameContainer extends Phaser.Group {
       // position character
       this.game.add.tween(c).to({
         x: 20,
-        y: Globals.height / 2
+        y: 100
         // x: 50 - idx * 15,
         // y: 25 + 32 * idx
       }, 500, Phaser.Easing.Exponential.Out, true, 200 + idx * 130)
