@@ -1,4 +1,4 @@
-import Atlas from "../utils/AtlasGraphic";
+import Atlas from "../utils/AtlasGraphic"
 
 export default class Button extends Phaser.Group {
   constructor(game, parent, { text="ATTACK", btnColor = 0xDADADA } = {}) {
@@ -21,10 +21,11 @@ export default class Button extends Phaser.Group {
       font: 'Squarebit',
       fill: '#101A10',
     })
-    label.width = buttonSpr.width * 0.85
-    label.scale.y = label.scale.x
+    label.scale.set(0.5)
+    // label.scale.y = label.scale.x
     label.alignIn(buttonSpr, Phaser.CENTER)
     // label.padding.set(10, 10)
+    buttonSpr.width = label.width + 10
 
     this.data = {
       originalScale: new Phaser.Point(this.scale.x, this.scale.y)

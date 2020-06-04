@@ -9,8 +9,9 @@ npm install
 npm run dev
 ```
 
-## Build
+## Builda and send it to itch.io
 
 ```bash
 npm run deploy
 ```
+

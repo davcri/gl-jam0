@@ -70,9 +70,10 @@ export default class Totem extends Phaser.Group {
     }
 
     get topPiece() {
+        if (this.topPieceIndex < 0) return null
         return this.pieces[this.topPieceIndex]
     }
-    
+
     get topPieceIndex() {
         return Totem.MAX_SIZE - this.freeSlots - 1
     }

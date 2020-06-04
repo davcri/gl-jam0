@@ -15,7 +15,7 @@ export default class extends Phaser.Group {
       attack: 10 + this.game.rnd.integerInRange(0, 4),
       defense: 10 + this.game.rnd.integerInRange(0, 4),
       hp: 40 + this.game.rnd.integerInRange(0, 20),
-      speed: this.game.rnd.integerInRange(1, 10)
+      speed: this.game.rnd.integerInRange(4, 15)
     })
 
     /**

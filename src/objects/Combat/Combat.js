@@ -36,7 +36,6 @@ class PlayerStatsUI extends Phaser.Group {
       this.def
     ])
   }
-
 }
 
 export default class extends Phaser.Group {
@@ -94,7 +93,9 @@ export default class extends Phaser.Group {
 
   connectSignals() {
     this.gui.signals.piecePressed.add(this.onPiecePressed, this)
+    this.gui.confirmTotemButton.released.add(this.onTotemConfirmed, this)
     this.totem.signals.totemBuilt.add(this.onTotemBuilt, this)
+    this.popButton.released.add(this.onPopButtonReleased, this)
   }
 
   /**
@@ -102,34 +103,23 @@ export default class extends Phaser.Group {
    */
   onPiecePressed(piece) {
     if (piece.data.isInTotem) {
-      // if (this.game.tweens.isTweening(piece)) return
-      // console.log(piece.name);
-      
-      // const moveTwn = this.game.add.tween(piece).to({
-      //   x: piece.data.previousGuiPos.x,
-      //   y: piece.data.previousGuiPos.y
-      // }, 300, Phaser.Easing.Exponential.InOut, true)
-      // moveTwn.onComplete.addOnce(() => {
-      //   piece.data.isInTotem = false
-      // })
-      // this.signals.pieceRemoveFromTotem.dispatch()
-      // this.totem.pop()
+      return
     } else {
-      if (this.game.tweens.isTweening(piece)) return;
-      else console.log('Dai non cliccare come un forsennato');
+      if (this.placeTwn && this.placeTwn.isRunning) return
+      else console.log('Dai non cliccare come un forsennato')
       
       // save current position in data.previousGuiPos
       piece.data.previousGuiPos.copyFrom(piece)
       const target = this.totem.getNextPiecePosition()
-      const placeTwn = this.game.add.tween(piece).to({
+      this.placeTwn = this.game.add.tween(piece).to({
         x: target.x,
         y: target.y
       }, 300, Phaser.Easing.Exponential.InOut, true)
-      placeTwn.onComplete.addOnce(() => {
+      this.placeTwn.onComplete.addOnce(() => {
         piece.data.isInTotem = true
         const totemPosition = this.totem.addPiece(piece)
         this.signals.piecePlacedInTotem.dispatch(piece, totemPosition)
-        this.showPopButton()
+        this.updatePopButton()
       })
     }
     this.totem.debugPieces()
@@ -137,6 +127,37 @@ export default class extends Phaser.Group {
 
   onTotemBuilt() {
     this.gui.showActions()
+  }
+
+  onPopButtonReleased() {
+    const piece = this.totem.topPiece
+    if (this.game.tweens.isTweening(piece)) return
+    console.log(piece.name);
+    
+    const moveTwn = this.game.add.tween(piece).to({
+      x: piece.data.previousGuiPos.x,
+      y: piece.data.previousGuiPos.y
+    }, 300, Phaser.Easing.Exponential.InOut, true)
+    moveTwn.onComplete.addOnce(() => {
+      piece.data.isInTotem = false
+    })
+    this.signals.pieceRemoveFromTotem.dispatch()
+    this.totem.pop()
+    this.gui.confirmTotemButton.visible = false
+    this.updatePopButton()
+  }
+
+  onTotemConfirmed() {
+    this.popButton.visible = false
+    this.gui.confirmTotemButton.visible = false
+
+    const turns = this.makeTurns()
+    if (turns[0] === this.player) {
+      console.log('PLAYER IS FASTER');
+    } else {
+      console.log(`Enemy ${this.getActiveEnemy().name} IS FASTER`);
+    }
+
   }
 
   setPositions() {
@@ -152,7 +173,16 @@ export default class extends Phaser.Group {
   }
 
   makeTurns() {
-    return [this.player].concat(this.enemies).sort((a, b) => {
+    const activeEnemy = this.getActiveEnemy()
+    if (activeEnemy == undefined) {
+      console.error('No active enemy');
+    }
+
+    // console.log(activeEnemy.name, 'speed', activeEnemy.stats.speed);
+    // console.log('player speed', this.player.stats.speed);
+    
+    this.player.combatStats.speed
+    return [activeEnemy, this.player].sort((a, b) => {
       return (b.stats.speed - a.stats.speed)
     })
   }
@@ -193,7 +223,18 @@ export default class extends Phaser.Group {
     this.game.add.tween(this.gui).to({ alpha: 1 }, 200, 'Quad', true, 500);
   }
 
-  showPopButton() {
+  /**
+   * @returns {Enemy}
+   */
+  getActiveEnemy() {
+    return this.enemies.find(enemy => enemy.alpha === 1)
+  }
+
+  updatePopButton() {
+    if (this.totem.topPiece === null) {
+      this.popButton.visible = false
+      return
+    }
     this.popButton.visible = true
     this.popButton.centerY = this.totem.topPiece.centerY
     this.popButton.left = this.totem.topPiece.right + 5

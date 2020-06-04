@@ -1,6 +1,6 @@
-import Atlas from "../../utils/AtlasGraphic";
-import Globals from "../../utils/Globals";
-import Button from "../Button";
+import Atlas from "../../utils/AtlasGraphic"
+import Globals from "../../utils/Globals"
+import Button from "../Button"
 
 export default class extends Phaser.Group {
   /**
@@ -24,7 +24,9 @@ export default class extends Phaser.Group {
       piece.sprite.inputEnabled = true
       piece.sprite.events.onInputDown.add(() => this.onPiecePressed(piece))
     });
-    // TODO: Decide UI for pieces. Center pieces? 
+
+    this.confirmTotemButton = new Button(this.game, this, { text: 'confirm' })
+    this.confirmTotemButton.visible = false
 
     this.addMultiple(this.pieces)
   }
@@ -36,10 +38,11 @@ export default class extends Phaser.Group {
   }
 
   showActions() {
-    this.button = new Button(this.game, this)
-    this.add(this.button)
-    this.button.centerX = 60
-    this.button.centerY = 30
+    this.confirmTotemButton.visible = true
+    this.confirmTotemButton.scale.set(0.5)
+    this.add(this.confirmTotemButton)
+    this.confirmTotemButton.centerX = 80
+    this.confirmTotemButton.centerY = 26
   }
 
   makePanel(width = 20, height = 20, lineWidth = 1) {
