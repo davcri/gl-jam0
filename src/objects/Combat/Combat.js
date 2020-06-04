@@ -5,6 +5,7 @@ import Totem from "./Totem/Totem";
 import Pieces from "../../data/Pieces";
 import Piece from "./Totem/Piece";
 import Button from "../Button";
+import Atlas from "../../utils/AtlasGraphic";
 
 class PlayerStatsUI extends Phaser.Group {
   constructor(game, { vSeparation = 12, valueX = 30 } = {}) {
@@ -78,6 +79,9 @@ export default class extends Phaser.Group {
     this.popButton = new Button(this.game, this, { text: 'POP' })
     this.popButton.visible = false
 
+    this.arrow = Atlas.getTileById(1034)
+    this.arrow.visible = false
+    
     this.setPositions()
     this.connectSignals()
     this.addMultiple([
@@ -87,7 +91,8 @@ export default class extends Phaser.Group {
       this.attackText,
       this.defenseText,
       this.playerStatsUI,
-      this.popButton
+      this.popButton,
+      this.arrow
     ])
   }
 
@@ -122,7 +127,7 @@ export default class extends Phaser.Group {
         this.updatePopButton()
       })
     }
-    this.totem.debugPieces()
+    // this.totem.debugPieces()
   }
 
   onTotemBuilt() {
@@ -152,12 +157,69 @@ export default class extends Phaser.Group {
     this.gui.confirmTotemButton.visible = false
 
     const turns = this.makeTurns()
-    if (turns[0] === this.player) {
-      console.log('PLAYER IS FASTER');
-    } else {
-      console.log(`Enemy ${this.getActiveEnemy().name} IS FASTER`);
-    }
 
+    this.turnInfo = Atlas.getWhiteSquare()
+    this.turnInfo.y = 20
+    let turnMessage = ''
+    if (turns[0] === this.player) {
+      turnMessage = `${this.player.name}'s turn`
+      this.turnInfo.tint = Globals.palette[4]
+    } else {
+      turnMessage = `${this.enemies[0].name}'s turns`
+      this.turnInfo.tint = Globals.palette[3]
+    }
+    this.turnInfoText = new Phaser.Text(this.game, 0, 0, turnMessage, Globals.fontStyles.normal)
+    this.add(this.turnInfo)
+    this.turnInfo.width = Globals.width + 300
+    this.turnInfo.height = Globals.height * 0.5
+    this.turnInfo.angle = this.game.rnd.integerInRange(3, 7)
+
+    this.turnInfoText.scale.set(0.65)
+    this.turnInfoText.wordWrap = true
+    this.turnInfoText.wordWrapWidth = Globals.width * 0.9
+    this.turnInfoText.alpha = 0
+    this.turnInfoText.angle = this.turnInfo.angle
+    this.turnInfoText.centerX = Globals.center.x
+    this.turnInfoText.centerY = this.turnInfo.centerY 
+    this.add(this.turnInfoText)
+
+    const showTwn = this.game.add.tween(this.turnInfo).from({
+      angle: this.game.rnd.integerInRange(-30, 30),
+      alpha: 0,
+      width: '+100',
+      height: '+70'
+    }, 230, Phaser.Easing.Quadratic.In, true)
+    showTwn.onComplete.add(() => {
+      // TODO: add hide on click
+      // TODO: prevent input when shown
+      this.game.camera.shake(0.003, 180)
+      this.game.add.tween(this.turnInfoText).to({
+        alpha: 1,
+      }, 200, Phaser.Easing.Cubic.Out, true).onComplete.addOnce(() => {
+        // hide and destroy
+        const delay = 1000
+        this.game.add.tween(this.turnInfo).to({
+          alpha: 0,
+          y: '+70',
+        }, 200, Phaser.Easing.Quadratic.Out, true, delay).onComplete.addOnce(() => {
+          this.turnInfo.destroy()
+        })
+        this.game.add.tween(this.turnInfoText).to({
+          alpha: 0,
+          y: '+70',
+        }, 200, Phaser.Easing.Quadratic.Out, true, delay).onComplete.addOnce(() => {
+          this.turnInfoText.destroy()
+        })
+      })
+    })
+
+    // this.arrow.visible = true
+    // this.arrow.bottom = turns[0].top
+    // this.arrow.centerX = turns[0].centerX
+    // this.game.add.tween(this.arrow).from({
+    //   y: '-1',
+    //   alpha: 0.8
+    // }, 250, Phaser.Easing.Sinusoidal.InOut, true, 0, -1, true)
   }
 
   setPositions() {

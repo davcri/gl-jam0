@@ -28,7 +28,7 @@ export default class extends Phaser.Group {
       speed: this.stats.speed
     });
 
-    this.name = "Character"
+    this.name = "Player"
 
     // head
     this.head = this.makeHead()
