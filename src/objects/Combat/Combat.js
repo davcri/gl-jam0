@@ -36,6 +36,15 @@ class PlayerStatsUI extends Phaser.Group {
     this.speed.scale.set(0.3)
     this.speed.bottom = this.speedLabel.bottom
 
+    this.hpLabel = new Phaser.Text(this.game, 0, vSeparation*3, 'hp', Globals.fontStyles.normal)
+    this.hpLabel.scale.set(0.3)
+    this.hpLabel.alpha = 0.3
+    this.hpLabel.tint = Globals.paletteExtra.green 
+    this.hp = new Phaser.Text(this.game, valueX, this.hpLabel.y + 2, player.stats.hp, Globals.fontStyles.normal)
+    this.hp.scale.set(0.3)
+    this.hp.tint = Globals.paletteExtra.green
+    this.hp.bottom = this.hpLabel.bottom
+
     this.alpha = 0
 
     this.addMultiple([
@@ -43,10 +52,12 @@ class PlayerStatsUI extends Phaser.Group {
       this.atkLabel,
       this.defLabel,
       this.speedLabel,
+      this.hpLabel,
       // this.buff,
       this.atck,
       this.def,
-      this.speed
+      this.speed,
+      this.hp
     ])
 
     player.signals.statsUpdated.add(this.updateStats, this)
@@ -138,9 +149,16 @@ export default class extends Phaser.Group {
     this.enemySpeedText.scale.set(0.3)
     this.enemySpeedValue = new Phaser.Text(this.game, 0, 0, '-', Globals.fontStyles.normal)
     this.enemySpeedValue.scale.set(0.3)
+    // enemy hp
+    this.enemyHpText = new Phaser.Text(this.game, 0, 0, 'hp', Globals.fontStyles.normal)
+    this.enemyHpText.scale.set(0.3)
+    this.enemyHpText.tint = Globals.palette[2]
+    this.enemyHpValue = new Phaser.Text(this.game, 0, 0, '-', Globals.fontStyles.normal)
+    this.enemyHpValue.scale.set(0.3)
+    this.enemyHpValue.tint = Globals.palette[2]
     
     // set alpha 
-    const elems = [this.enemyAttackText, this.enemySpeedText, this.enemyDefText]
+    const elems = [this.enemyAttackText, this.enemySpeedText, this.enemyDefText, this.enemyHpText]
     elems.forEach(elem => {
       elem.alpha = 0.3
     })
@@ -169,6 +187,8 @@ export default class extends Phaser.Group {
       this.enemyAttackText,
       this.enemySpeedValue, 
       this.enemyAttackValue,
+      this.enemyHpText,
+      this.enemyHpValue,
       this.enemyDefValue,
       this.playerStatsUI,
       this.popButton,
@@ -348,7 +368,7 @@ export default class extends Phaser.Group {
   }
 
   setPositions() {
-    const vSep = 14
+    const vSep = 12
     const yStart = 24
     // totem labels
     this.defText.position.set(50, yStart)
@@ -360,11 +380,13 @@ export default class extends Phaser.Group {
     // enemy labels
     this.enemyDefText.position.set(180, this.playerStatsUI.y)
     this.enemyAttackText.position.set(180, this.playerStatsUI.y + vSep)
-    this.enemySpeedText.position.set(180, this.playerStatsUI.y + vSep + vSep)
+    this.enemySpeedText.position.set(180, this.playerStatsUI.y + vSep*2)
+    this.enemyHpText.position.set(180, this.playerStatsUI.y + vSep*3)
     const offsetx = 25
     this.enemyDefValue.position.set(180 + offsetx, this.enemyDefText.y)
     this.enemyAttackValue.position.set(180 + offsetx, this.enemyAttackText.y)
     this.enemySpeedValue.position.set(180 + offsetx, this.enemySpeedText.y)
+    this.enemyHpValue.position.set(180 + offsetx, this.enemyHpText.y)
 
     this.popButton.scale.set(0.5)
 
@@ -390,14 +412,16 @@ export default class extends Phaser.Group {
     const pieces = []
     for (let index = 0; index < Pieces.startingPieces.length; index++) {
       const pieceData = Pieces.startingPieces[index];
-      pieces.push(new Piece(game, pieceData))
+      const piece = new Piece(game, pieceData)
+      piece.sprite.tint = Globals.palette[2]
+      pieces.push(piece)
     }
     return pieces
   }
 
   start() {
     const enemy = new Enemy(this.game, 0)
-    enemy.alpha = 0.5
+    enemy.scale.set(1.2)
     enemy.x = Globals.width - 60
     enemy.y = 40
     this.enemies.push(enemy)
@@ -407,6 +431,7 @@ export default class extends Phaser.Group {
     this.enemyAttackValue.text = enemy.stats.attack
     this.enemySpeedValue.text = enemy.stats.speed
     this.enemyDefValue.text = enemy.stats.defense
+    this.enemyHpValue.text = enemy.stats.hp
 
     this.game.add.tween(this.playerStatsUI).to({
       alpha: 1,
