@@ -78,17 +78,17 @@ export default class extends Phaser.Group {
 
   updateSpeed(value) {
     this.combatStats.speed = value
-    this.signals.statsUpdated.dispatch()
+    this.signals.statsUpdated.dispatch('speed')
   }
 
   updateAttack(value) {
     this.combatStats.attack = value
-    this.signals.statsUpdated.dispatch()
+    this.signals.statsUpdated.dispatch('attack')
   }
 
   updateDefense(value) {
     this.combatStats.defense = value
-    this.signals.statsUpdated.dispatch()
+    this.signals.statsUpdated.dispatch('defense')
   }
 
   resetCombatStats() {

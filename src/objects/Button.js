@@ -7,7 +7,7 @@ export default class Button extends Phaser.Group {
     this.pressed = new Phaser.Signal()
     this.released = new Phaser.Signal()
 
-    const buttonSpr = Atlas.getWhiteSquare()
+    const buttonSpr = this.buttonSpr = Atlas.getWhiteSquare()
     buttonSpr.anchor.set(0.5, 0.5)
     buttonSpr.width = 40
     buttonSpr.height = 16

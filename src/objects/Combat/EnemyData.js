@@ -3,7 +3,7 @@
  * @property {string} name
  * @property {number} tileId
  * @property {number} tier
- * @property {Stats} stats
+ * @property {import('../Stats')} stats
  */
 
  /**

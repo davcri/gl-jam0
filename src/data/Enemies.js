@@ -13,7 +13,7 @@ class Enemies {
           attack: 10,
           hp: 10,
           speed: 10,
-          dodge: 1
+          defense: 1
         })
       }),
       new EnemyData({
@@ -24,7 +24,7 @@ class Enemies {
           hp: 10,
           attack: 10,
           speed: 12,
-          dodge: 1
+          defense: 10
         })
       })
     ]

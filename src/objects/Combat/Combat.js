@@ -13,22 +13,25 @@ class PlayerStatsUI extends Phaser.Group {
    * @param {import('../Character').default} player 
    * @param {*} param2 
    */
-  constructor(game, player, { vSeparation = 12, valueX = 40 } = {}) {
+  constructor(game, player, { vSeparation = 12, valueX = 25 } = {}) {
     super(game)
     
     this.defLabel = new Phaser.Text(this.game, 0, 0, 'def', Globals.fontStyles.normal)
     this.defLabel.scale.set(0.3) 
-    this.def = new Phaser.Text(this.game, valueX, this.defLabel.y, 'none', Globals.fontStyles.normal)
+    this.defLabel.alpha = 0.3
+    this.def = new Phaser.Text(this.game, valueX, this.defLabel.y, player.stats.defense, Globals.fontStyles.normal)
     this.def.scale.set(0.3)
 
     this.atkLabel = new Phaser.Text(this.game, 0, vSeparation, 'atk', Globals.fontStyles.normal)
-    this.atkLabel.scale.set(0.3) 
+    this.atkLabel.scale.set(0.3)
+    this.atkLabel.alpha = 0.3 
     this.atck = new Phaser.Text(this.game, valueX, this.atkLabel.y, player.stats.attack, Globals.fontStyles.normal)
     this.atck.scale.set(0.3)
     this.atck.bottom = this.atkLabel.bottom
-    
+
     this.speedLabel = new Phaser.Text(this.game, 0, vSeparation*2, 'spd', Globals.fontStyles.normal)
-    this.speedLabel.scale.set(0.3) 
+    this.speedLabel.scale.set(0.3)
+    this.speedLabel.alpha = 0.3 
     this.speed = new Phaser.Text(this.game, valueX, this.speedLabel.y + 2, player.stats.speed, Globals.fontStyles.normal)
     this.speed.scale.set(0.3)
     this.speed.bottom = this.speedLabel.bottom
@@ -50,10 +53,34 @@ class PlayerStatsUI extends Phaser.Group {
     this.player = player
   }
 
-  updateStats() {
+  updateStats(what) {
     this.atck.text = this.player.stats.attack + this.player.combatStats.attack
     this.def.text = this.player.stats.defense + this.player.combatStats.defense
     this.speed.text = this.player.stats.speed + this.player.combatStats.speed
+
+    this.animate(what)
+  }
+
+  animate(what) {
+    let elem 
+    switch (what) {
+      case 'attack':
+        elem = this.atck
+        break;
+      case 'defense':
+        elem = this.def
+        break;
+      case 'speed':
+        elem = this.speed
+        break;
+      default:
+        break;
+    }
+    if (elem == undefined) return
+    this.game.add.tween(elem).to({
+      alpha: 0,
+      y: '-0.5'
+    }, 80, Phaser.Easing.Quadratic.InOut, true, 0, 1, true)
   }
 }
 
@@ -85,17 +112,44 @@ export default class extends Phaser.Group {
     this.totem = new Totem(game)
     this.gui = new CombatUI(this.game, this.availabledPieces)
     
+    // totem labels
     this.defText = new Phaser.Text(this.game, 0, 0, 'def', Globals.fontStyles.normal)
     this.defText.scale.set(0.3)
     this.attackText = new Phaser.Text(this.game, 0, 0, 'atk', Globals.fontStyles.normal)
     this.attackText.scale.set(0.3)
     this.speedText = new Phaser.Text(this.game, 0, 0, 'spd', Globals.fontStyles.normal)
     this.speedText.scale.set(0.3)
+    this.defText.alpha = 0.3
+    this.attackText.alpha = 0.3
+    this.speedText.alpha = 0.3
+
+    // enemy def
+    this.enemyDefText = new Phaser.Text(this.game, 0, 0, 'def', Globals.fontStyles.normal)
+    this.enemyDefText.scale.set(0.3)
+    this.enemyDefValue = new Phaser.Text(this.game, 0, 0, '-', Globals.fontStyles.normal)
+    this.enemyDefValue.scale.set(0.3)
+    // enemy atck
+    this.enemyAttackText = new Phaser.Text(this.game, 0, 0, 'atk', Globals.fontStyles.normal)
+    this.enemyAttackText.scale.set(0.3)
+    this.enemyAttackValue = new Phaser.Text(this.game, 0, 0, '-', Globals.fontStyles.normal)
+    this.enemyAttackValue.scale.set(0.3)
+    // enemy speed
+    this.enemySpeedText = new Phaser.Text(this.game, 0, 0, 'spd', Globals.fontStyles.normal)
+    this.enemySpeedText.scale.set(0.3)
+    this.enemySpeedValue = new Phaser.Text(this.game, 0, 0, '-', Globals.fontStyles.normal)
+    this.enemySpeedValue.scale.set(0.3)
+    
+    // set alpha 
+    const elems = [this.enemyAttackText, this.enemySpeedText, this.enemyDefText]
+    elems.forEach(elem => {
+      elem.alpha = 0.3
+    })
 
     this.playerStatsUI = new PlayerStatsUI(this.game, this.player)
 
     this.popButton = new Button(this.game, this, { text: 'POP' })
     this.popButton.visible = false
+    this.popButton.buttonSpr.tint = Globals.palette[2]
 
     this.arrow = Atlas.getTileById(1034)
     this.arrow.visible = false
@@ -110,6 +164,12 @@ export default class extends Phaser.Group {
       this.defText,
       this.attackText,
       this.speedText,
+      this.enemyDefText,
+      this.enemySpeedText,
+      this.enemyAttackText,
+      this.enemySpeedValue, 
+      this.enemyAttackValue,
+      this.enemyDefValue,
       this.playerStatsUI,
       this.popButton,
       this.arrow
@@ -289,13 +349,24 @@ export default class extends Phaser.Group {
 
   setPositions() {
     const vSep = 14
-    this.defText.position.set(43, 32)
-    this.attackText.position.set(43, 32 + vSep)
-    this.speedText.position.set(43, 32  + vSep + vSep)
+    const yStart = 24
+    // totem labels
+    this.defText.position.set(50, yStart)
+    this.attackText.position.set(50, yStart + vSep)
+    this.speedText.position.set(50, yStart  + vSep + vSep)
+
+    this.playerStatsUI.position.set(50, 75)
+
+    // enemy labels
+    this.enemyDefText.position.set(180, this.playerStatsUI.y)
+    this.enemyAttackText.position.set(180, this.playerStatsUI.y + vSep)
+    this.enemySpeedText.position.set(180, this.playerStatsUI.y + vSep + vSep)
+    const offsetx = 25
+    this.enemyDefValue.position.set(180 + offsetx, this.enemyDefText.y)
+    this.enemyAttackValue.position.set(180 + offsetx, this.enemyAttackText.y)
+    this.enemySpeedValue.position.set(180 + offsetx, this.enemySpeedText.y)
 
     this.popButton.scale.set(0.5)
-
-    this.playerStatsUI.position.set(43, 80)
 
     // this.gui.bottom = Globals.height - 8
     // this.gui.centerX = Globals.width / 2
@@ -325,19 +396,17 @@ export default class extends Phaser.Group {
   }
 
   start() {
-    const enemiesAmount = this.game.rnd.integerInRange(1, 3)
-    // create enemies
-    for (let index = 0; index < enemiesAmount; index++) {
-      const enemy = new Enemy(this.game, 0)
-      enemy.alpha = 0.5
-      enemy.x = Globals.width - 40 - index * 30
-      enemy.y = 50 + index * 5
-      this.enemies.push(enemy)
-      this.add(enemy)
-      if (index === enemiesAmount - 1) {
-        enemy.alpha = 1
-      }
-    }
+    const enemy = new Enemy(this.game, 0)
+    enemy.alpha = 0.5
+    enemy.x = Globals.width - 60
+    enemy.y = 40
+    this.enemies.push(enemy)
+    this.add(enemy)
+
+    // update enemy stats
+    this.enemyAttackValue.text = enemy.stats.attack
+    this.enemySpeedValue.text = enemy.stats.speed
+    this.enemyDefValue.text = enemy.stats.defense
 
     this.game.add.tween(this.playerStatsUI).to({
       alpha: 1,

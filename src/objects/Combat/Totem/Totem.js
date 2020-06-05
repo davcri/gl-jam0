@@ -23,7 +23,7 @@ export default class Totem extends Phaser.Group {
         const overlap = 2 //px
         for (let index = 0; index < this.pieces.length; index++) {
             this.pieces[index] = new Piece(this.game, Pieces.PLACEHOLDER)
-            this.pieces[index].position.set(70, 60)
+            this.pieces[index].position.set(70, 50)
             if (index === 0) continue
             this.pieces[index].bottom = this.pieces[index - 1].top + overlap
         }

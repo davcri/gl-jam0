@@ -27,6 +27,8 @@ export default class extends Phaser.Group {
 
     this.confirmTotemButton = new Button(this.game, this, { text: 'confirm' })
     this.confirmTotemButton.visible = false
+    this.confirmTotemButton.buttonSpr.tint = Globals.palette[1]
+
 
     this.addMultiple(this.pieces)
   }
@@ -42,7 +44,7 @@ export default class extends Phaser.Group {
     this.confirmTotemButton.scale.set(0.5)
     this.add(this.confirmTotemButton)
     this.confirmTotemButton.centerX = 80
-    this.confirmTotemButton.centerY = 26
+    this.confirmTotemButton.centerY = 15
   }
 
   makePanel(width = 20, height = 20, lineWidth = 1) {
