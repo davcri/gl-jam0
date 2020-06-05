@@ -7,13 +7,7 @@ import PieceStats from "../objects/Combat/Totem/PieceStats"
 class Pieces {
   constructor() {
     const tier0 = [
-        new PieceData({
-            name: 'Piece1',
-            tileId: -1, // random
-            stats: new PieceStats({
-                evocationCost: 1,
-            })
-        })
+        this.randomPiece
     ]
 
     this.pieces = [
@@ -23,13 +17,25 @@ class Pieces {
 
   get startingPieces() {
       return [
-          this.pieces[0][0],
-          this.pieces[0][0],
-          this.pieces[0][0],
-          this.pieces[0][0],
-          this.pieces[0][0],
-          this.pieces[0][0]
+          this.randomPiece,
+          this.randomPiece,
+          this.randomPiece,
+          this.randomPiece,
+          this.randomPiece,
+          this.randomPiece
       ]
+  }
+
+  get randomPiece() {
+    return new PieceData({
+        name: 'Piece1',
+        tileId: -1, // random
+        stats: new PieceStats({
+            evocationCost: 1,
+            speed: Math.floor(Math.random()*5),
+            attack: Math.floor(Math.random()*5)
+        })
+    })
   }
 
   get PLACEHOLDER() {
@@ -38,6 +44,8 @@ class Pieces {
         tileId: 0,
         stats: new PieceStats({
             evocationCost: -1,
+            speed: -1,
+            attack: -1
         })
     })
   }

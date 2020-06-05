@@ -1,6 +1,8 @@
 /**
  * @typedef {Object} StatsConf
  * @property {number} evocationCost
+ * @property {number} attack
+ * @property {number} speed
  */
 
 export default class PieceStats {
@@ -9,9 +11,8 @@ export default class PieceStats {
      */
     constructor(statsConf) {
         this.evocationCost = statsConf.evocationCost
-        /**
-         * Activated when the piece is pushed out of the totem
-         */
-        // this.specialEffect = {}
+        this.speed = statsConf.speed
+        this.attack = statsConf.attack
+        // this.buff = statsConf.buff
     }
   }

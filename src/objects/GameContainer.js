@@ -17,7 +17,6 @@ export default class GameContainer extends Phaser.Group {
   }
 
   showStartScreen() {
-    //TODO: IMPROVE
     const amount = 8
     this.sprs = []
     const randomAnim = (spr, index) => {
@@ -43,21 +42,25 @@ export default class GameContainer extends Phaser.Group {
     }
 
     // LOGO
-    for (let index = 0; index < amount; index++) {
-      const spr = Atlas.getRandomTile()
-      randomAnim(spr, index)
-    }
+    // for (let index = 0; index < amount; index++) {
+    //   const spr = Atlas.getRandomTile()
+    //   randomAnim(spr, index)
+    // }
 
-    const touchText = this.game.add.text(Globals.center.x, Globals.height - 30, 'PRESS TO START', {      // fontSize: ,
-      fontSize: 32,
-      font: 'Squarebit'
-    })
-    touchText.scale.set(0.5)
+    const touchText = this.game.add.text(Globals.center.x, Globals.height - 30, 'CLICK/TAP TO START', Globals.fontStyles.normal)
+    touchText.scale.set(0.4)
+    touchText.tint = Globals.palette[3]
     touchText.centerX = Globals.center.x
+
+    const titleText = this.game.add.text(Globals.center.x, 15, 'TOT\'EM UP', Globals.fontStyles.normal)
+    titleText.scale.set(0.9)
+    titleText.tint = Globals.palette[1]
+    titleText.centerX = Globals.center.x
 
     this.game.input.onDown.addOnce(() => {
       this.sfx.startGame()
       this.game.camera.flash()
+      titleText.destroy()
       touchText.destroy()
       this.sprs.forEach(spr => spr.destroy())
       this.startGame()
@@ -115,7 +118,7 @@ export default class GameContainer extends Phaser.Group {
         })
       }
 
-      if (this.dungeon.terrain[0].x < -150 && this.mode === 'exploration') {
+      if (this.dungeon.terrain[0].x < -60 && this.mode === 'exploration') {
         this.mode = 'combat'
         this.setCombatPosition()
         this.combat.start()

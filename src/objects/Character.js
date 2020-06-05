@@ -7,6 +7,10 @@ export default class extends Phaser.Group {
   constructor({ game }) {
     super(game, null)
 
+    this.signals = {
+      statsUpdated: new Phaser.Signal() // dispatched when stats are updated because a new piece was added to the totem
+    }
+
     /**
      * Base stats, they change only on level up.
      * Used as a base for combat stats
@@ -22,10 +26,10 @@ export default class extends Phaser.Group {
      * Used in combat. They are modified during combat thanks to totem pieces and buffs
      */
     this.combatStats = new Stats({
-      attack: this.stats.attack,
-      defense: this.stats.defense,
-      hp: this.stats.hp,
-      speed: this.stats.speed
+      attack: 0,
+      defense: 0,
+      hp: 0,
+      speed: 0
     });
 
     this.name = "Player"
@@ -70,7 +74,23 @@ export default class extends Phaser.Group {
     }
   }
 
-  update() {}
+  // update() {}
+
+  updateSpeed(value) {
+    this.combatStats.speed = value
+    this.signals.statsUpdated.dispatch()
+  }
+
+  updateAttack(value) {
+    this.combatStats.attack = value
+    this.signals.statsUpdated.dispatch()
+  }
+
+  resetCombatStats() {
+    this.combatStats.speed = 0
+    this.combatStats.attack = 0
+    this.signals.statsUpdated.dispatch()
+  }
 
   makeHead() {
     const spr = Atlas.getRandomHead()

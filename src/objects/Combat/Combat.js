@@ -8,34 +8,57 @@ import Button from "../Button";
 import Atlas from "../../utils/AtlasGraphic";
 
 class PlayerStatsUI extends Phaser.Group {
-  constructor(game, { vSeparation = 12, valueX = 30 } = {}) {
+  /**
+   * @param {*} game 
+   * @param {import('../Character').default} player 
+   * @param {*} param2 
+   */
+  constructor(game, player, { vSeparation = 12, valueX = 40 } = {}) {
     super(game)
     
     this.buffLabel = new Phaser.Text(this.game, 0, 0, 'buff', Globals.fontStyles.normal)
     this.buffLabel.scale.set(0.3)
-    this.buff = new Phaser.Text(this.game, valueX, 0, 'none', Globals.fontStyles.normal)
+    this.buff = new Phaser.Text(this.game, valueX, 0, '-', Globals.fontStyles.normal)
     this.buff.scale.set(0.3)
 
     this.atkLabel = new Phaser.Text(this.game, 0, vSeparation, 'atk', Globals.fontStyles.normal)
     this.atkLabel.scale.set(0.3) 
-    this.atck = new Phaser.Text(this.game, valueX, this.atkLabel.y, 'none', Globals.fontStyles.normal)
+    this.atck = new Phaser.Text(this.game, valueX, this.atkLabel.y, player.stats.attack, Globals.fontStyles.normal)
     this.atck.scale.set(0.3)
+    this.atck.bottom = this.atkLabel.bottom
 
-    this.defLabel = new Phaser.Text(this.game, 0, vSeparation*2, 'def', Globals.fontStyles.normal)
-    this.defLabel.scale.set(0.3) 
-    this.def = new Phaser.Text(this.game, valueX, this.defLabel.y, 'none', Globals.fontStyles.normal)
-    this.def.scale.set(0.3)
+    // this.defLabel = new Phaser.Text(this.game, 0, vSeparation*2, 'def', Globals.fontStyles.normal)
+    // this.defLabel.scale.set(0.3) 
+    // this.def = new Phaser.Text(this.game, valueX, this.defLabel.y, 'none', Globals.fontStyles.normal)
+    // this.def.scale.set(0.3)
+
+    this.speedLabel = new Phaser.Text(this.game, 0, vSeparation*2, 'spd', Globals.fontStyles.normal)
+    this.speedLabel.scale.set(0.3) 
+    this.speed = new Phaser.Text(this.game, valueX, this.speedLabel.y + 2, player.stats.speed, Globals.fontStyles.normal)
+    this.speed.scale.set(0.3)
+    this.speed.bottom = this.speedLabel.bottom
 
     this.alpha = 0
 
     this.addMultiple([
       this.buffLabel,
       this.atkLabel,
-      this.defLabel,
+      // this.defLabel,
+      this.speedLabel,
       this.buff,
       this.atck,
-      this.def
+      // this.def,
+      this.speed
     ])
+
+    player.signals.statsUpdated.add(this.updateStats, this)
+    this.player = player
+  }
+
+  updateStats() {
+    // this.buff
+    this.atck.text = this.player.stats.attack + this.player.combatStats.attack
+    this.speed.text = this.player.stats.speed + this.player.combatStats.speed
   }
 }
 
@@ -49,7 +72,7 @@ export default class extends Phaser.Group {
 
     this.signals = {
       piecePlacedInTotem: new Phaser.Signal(), // Piece, Position 
-      pieceRemoveFromTotem: new Phaser.Signal(),
+      pieceRemovedFromTotem: new Phaser.Signal(),
     }
 
     // this.characters = characters
@@ -71,16 +94,18 @@ export default class extends Phaser.Group {
     this.buffText.scale.set(0.3)
     this.attackText = new Phaser.Text(this.game, 0, 0, 'atk', Globals.fontStyles.normal)
     this.attackText.scale.set(0.3)
-    this.defenseText = new Phaser.Text(this.game, 0, 0, 'def', Globals.fontStyles.normal)
-    this.defenseText.scale.set(0.3)
+    this.speedText = new Phaser.Text(this.game, 0, 0, 'spd', Globals.fontStyles.normal)
+    this.speedText.scale.set(0.3)
 
-    this.playerStatsUI = new PlayerStatsUI(this.game)
+    this.playerStatsUI = new PlayerStatsUI(this.game, this.player)
 
     this.popButton = new Button(this.game, this, { text: 'POP' })
     this.popButton.visible = false
 
     this.arrow = Atlas.getTileById(1034)
     this.arrow.visible = false
+    
+    this.alpha = 0
     
     this.setPositions()
     this.connectSignals()
@@ -89,7 +114,7 @@ export default class extends Phaser.Group {
       this.gui,
       this.buffText,
       this.attackText,
-      this.defenseText,
+      this.speedText,
       this.playerStatsUI,
       this.popButton,
       this.arrow
@@ -124,11 +149,17 @@ export default class extends Phaser.Group {
         piece.data.isInTotem = true
         const totemPosition = this.totem.addPiece(piece)
         this.signals.piecePlacedInTotem.dispatch(piece, totemPosition)
-        this.updatePopButton()
+        this.onPiecePlacedInTotem(piece, totemPosition)
       })
     }
     // this.totem.debugPieces()
   }
+
+  onPiecePlacedInTotem(piece, totemPosition) {
+    this.updatePopButton()
+    this.updatePlayerStats()
+  }
+
 
   onTotemBuilt() {
     this.gui.showActions()
@@ -146,10 +177,47 @@ export default class extends Phaser.Group {
     moveTwn.onComplete.addOnce(() => {
       piece.data.isInTotem = false
     })
-    this.signals.pieceRemoveFromTotem.dispatch()
+    this.signals.pieceRemovedFromTotem.dispatch()
+    this.onPieceRemovedFromTotem()
+  }
+
+  onPieceRemovedFromTotem() {
     this.totem.pop()
     this.gui.confirmTotemButton.visible = false
     this.updatePopButton()
+    this.updatePlayerStats()
+  }
+
+  updatePlayerStats() {
+    this.player.resetCombatStats()
+
+    // if totem is empty
+    if (this.totem.freeSlots === Totem.MAX_SIZE) {
+      return
+    }
+
+    for (let index = 0; index < this.totem.pieces.length; index++) {
+      const piece = this.totem.pieces[index];
+      if (piece == null || piece.placeholder) {
+        continue
+      } else {
+        switch (index) {
+          case 0:
+            // update speed
+            this.player.updateSpeed(piece.stats.speed)
+            break;
+          case 1:
+            // update atk
+            this.player.updateAttack(piece.stats.attack)
+            break
+          case 2:
+            // set buff?
+            break
+          default:
+            break;
+        }
+      }
+    }
   }
 
   onTotemConfirmed() {
@@ -223,13 +291,15 @@ export default class extends Phaser.Group {
   }
 
   setPositions() {
-    this.buffText.position.set(40, 32)
-    this.attackText.position.set(40, 46)
-    this.defenseText.position.set(40, 60)
+    const vSep = 14
+    this.buffText.position.set(43, 32)
+    this.attackText.position.set(43, 32 + vSep)
+    this.speedText.position.set(43, 32  + vSep + vSep)
 
     this.popButton.scale.set(0.5)
 
-    this.playerStatsUI.position.set(40, 80)
+    this.playerStatsUI.position.set(43, 80)
+
     // this.gui.bottom = Globals.height - 8
     // this.gui.centerX = Globals.width / 2
   }
@@ -240,9 +310,8 @@ export default class extends Phaser.Group {
       console.error('No active enemy');
     }
 
-    // console.log(activeEnemy.name, 'speed', activeEnemy.stats.speed);
-    // console.log('player speed', this.player.stats.speed);
-    
+    // TODO: remove forced player
+    return [this.player, activeEnemy]
     this.player.combatStats.speed
     return [activeEnemy, this.player].sort((a, b) => {
       return (b.stats.speed - a.stats.speed)
@@ -283,6 +352,7 @@ export default class extends Phaser.Group {
     // })
 
     this.game.add.tween(this.gui).to({ alpha: 1 }, 200, 'Quad', true, 500);
+    this.game.add.tween(this).to({ alpha: 1 }, 200, 'Quad', true, 500);
   }
 
   /**

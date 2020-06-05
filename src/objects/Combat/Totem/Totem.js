@@ -45,7 +45,7 @@ export default class Totem extends Phaser.Group {
         this.pieces[this.freeSlotIndex] = piece
         tmp.destroy()
         if (this.freeSlots === 0) this.signals.totemBuilt.dispatch()
-        return this.freeSlotIndex
+        return this.topPieceIndex
     }
 
     pop() {
