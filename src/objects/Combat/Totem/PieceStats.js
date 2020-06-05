@@ -3,6 +3,7 @@
  * @property {number} evocationCost
  * @property {number} attack
  * @property {number} speed
+ * @property {number} defense
  */
 
 export default class PieceStats {
@@ -13,6 +14,7 @@ export default class PieceStats {
         this.evocationCost = statsConf.evocationCost
         this.speed = statsConf.speed
         this.attack = statsConf.attack
+        this.defense = statsConf.defense
         // this.buff = statsConf.buff
     }
   }

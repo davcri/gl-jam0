@@ -29,7 +29,7 @@ export default class extends Phaser.Group {
         if (this.placeholder) {
             const square = Atlas.getWhiteSquare()
             square.tint = 0xFF6633
-            square.alpha = 0.6
+            square.alpha = 0
             return square
         }
         if (this.tileId <= -1) {

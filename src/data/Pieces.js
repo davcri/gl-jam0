@@ -33,7 +33,8 @@ class Pieces {
         stats: new PieceStats({
             evocationCost: 1,
             speed: Math.floor(Math.random()*5),
-            attack: Math.floor(Math.random()*5)
+            attack: Math.floor(Math.random()*5),
+            defense: Math.floor(Math.random()*5)
         })
     })
   }
@@ -45,7 +46,8 @@ class Pieces {
         stats: new PieceStats({
             evocationCost: -1,
             speed: -1,
-            attack: -1
+            attack: -1,
+            defense: -1,
         })
     })
   }

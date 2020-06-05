@@ -16,22 +16,17 @@ class PlayerStatsUI extends Phaser.Group {
   constructor(game, player, { vSeparation = 12, valueX = 40 } = {}) {
     super(game)
     
-    this.buffLabel = new Phaser.Text(this.game, 0, 0, 'buff', Globals.fontStyles.normal)
-    this.buffLabel.scale.set(0.3)
-    this.buff = new Phaser.Text(this.game, valueX, 0, '-', Globals.fontStyles.normal)
-    this.buff.scale.set(0.3)
+    this.defLabel = new Phaser.Text(this.game, 0, 0, 'def', Globals.fontStyles.normal)
+    this.defLabel.scale.set(0.3) 
+    this.def = new Phaser.Text(this.game, valueX, this.defLabel.y, 'none', Globals.fontStyles.normal)
+    this.def.scale.set(0.3)
 
     this.atkLabel = new Phaser.Text(this.game, 0, vSeparation, 'atk', Globals.fontStyles.normal)
     this.atkLabel.scale.set(0.3) 
     this.atck = new Phaser.Text(this.game, valueX, this.atkLabel.y, player.stats.attack, Globals.fontStyles.normal)
     this.atck.scale.set(0.3)
     this.atck.bottom = this.atkLabel.bottom
-
-    // this.defLabel = new Phaser.Text(this.game, 0, vSeparation*2, 'def', Globals.fontStyles.normal)
-    // this.defLabel.scale.set(0.3) 
-    // this.def = new Phaser.Text(this.game, valueX, this.defLabel.y, 'none', Globals.fontStyles.normal)
-    // this.def.scale.set(0.3)
-
+    
     this.speedLabel = new Phaser.Text(this.game, 0, vSeparation*2, 'spd', Globals.fontStyles.normal)
     this.speedLabel.scale.set(0.3) 
     this.speed = new Phaser.Text(this.game, valueX, this.speedLabel.y + 2, player.stats.speed, Globals.fontStyles.normal)
@@ -41,13 +36,13 @@ class PlayerStatsUI extends Phaser.Group {
     this.alpha = 0
 
     this.addMultiple([
-      this.buffLabel,
+      // this.buffLabel,
       this.atkLabel,
-      // this.defLabel,
+      this.defLabel,
       this.speedLabel,
-      this.buff,
+      // this.buff,
       this.atck,
-      // this.def,
+      this.def,
       this.speed
     ])
 
@@ -56,8 +51,8 @@ class PlayerStatsUI extends Phaser.Group {
   }
 
   updateStats() {
-    // this.buff
     this.atck.text = this.player.stats.attack + this.player.combatStats.attack
+    this.def.text = this.player.stats.defense + this.player.combatStats.defense
     this.speed.text = this.player.stats.speed + this.player.combatStats.speed
   }
 }
@@ -90,8 +85,8 @@ export default class extends Phaser.Group {
     this.totem = new Totem(game)
     this.gui = new CombatUI(this.game, this.availabledPieces)
     
-    this.buffText = new Phaser.Text(this.game, 0, 0, 'buff', Globals.fontStyles.normal)
-    this.buffText.scale.set(0.3)
+    this.defText = new Phaser.Text(this.game, 0, 0, 'def', Globals.fontStyles.normal)
+    this.defText.scale.set(0.3)
     this.attackText = new Phaser.Text(this.game, 0, 0, 'atk', Globals.fontStyles.normal)
     this.attackText.scale.set(0.3)
     this.speedText = new Phaser.Text(this.game, 0, 0, 'spd', Globals.fontStyles.normal)
@@ -112,7 +107,7 @@ export default class extends Phaser.Group {
     this.addMultiple([
       this.totem,
       this.gui,
-      this.buffText,
+      this.defText,
       this.attackText,
       this.speedText,
       this.playerStatsUI,
@@ -135,8 +130,10 @@ export default class extends Phaser.Group {
     if (piece.data.isInTotem) {
       return
     } else {
-      if (this.placeTwn && this.placeTwn.isRunning) return
-      else console.log('Dai non cliccare come un forsennato')
+      if (this.placeTwn && this.placeTwn.isRunning) {
+        console.log('Dai non cliccare come un forsennato')
+        return
+      }
       
       // save current position in data.previousGuiPos
       piece.data.previousGuiPos.copyFrom(piece)
@@ -168,7 +165,6 @@ export default class extends Phaser.Group {
   onPopButtonReleased() {
     const piece = this.totem.topPiece
     if (this.game.tweens.isTweening(piece)) return
-    console.log(piece.name);
     
     const moveTwn = this.game.add.tween(piece).to({
       x: piece.data.previousGuiPos.x,
@@ -211,7 +207,8 @@ export default class extends Phaser.Group {
             this.player.updateAttack(piece.stats.attack)
             break
           case 2:
-            // set buff?
+            // update def
+            this.player.updateDefense(piece.stats.defense)
             break
           default:
             break;
@@ -292,7 +289,7 @@ export default class extends Phaser.Group {
 
   setPositions() {
     const vSep = 14
-    this.buffText.position.set(43, 32)
+    this.defText.position.set(43, 32)
     this.attackText.position.set(43, 32 + vSep)
     this.speedText.position.set(43, 32  + vSep + vSep)
 
