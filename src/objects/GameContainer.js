@@ -77,8 +77,8 @@ export default class GameContainer extends Phaser.Group {
 
     this.addMultiple([
       this.dungeon,
+      ...this.characters,
       this.combat,
-      ...this.characters
     ])
     this.setPositions()
   }

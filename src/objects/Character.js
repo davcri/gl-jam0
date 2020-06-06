@@ -17,7 +17,7 @@ export default class extends Phaser.Group {
      */
     this.stats = new Stats({
       attack: 10 + this.game.rnd.integerInRange(0, 4),
-      defense: 10 + this.game.rnd.integerInRange(0, 4),
+      defense: 2 + this.game.rnd.integerInRange(0, 4),
       hp: 40 + this.game.rnd.integerInRange(0, 20),
       speed: this.game.rnd.integerInRange(4, 15)
     })
@@ -75,6 +75,14 @@ export default class extends Phaser.Group {
   }
 
   // update() {}
+
+  getCurrentStats() {
+    return new Stats({
+      attack: this.stats.attack + this.combatStats.attack,
+      defense: this.stats.defense + this.combatStats.defense,
+      speed: this.stats.speed + this.combatStats.speed
+    })
+  }
 
   updateSpeed(value) {
     this.combatStats.speed = value

@@ -13,7 +13,7 @@ class Enemies {
           attack: 10,
           hp: 10,
           speed: 10,
-          defense: 1
+          defense: 8
         })
       }),
       new EnemyData({

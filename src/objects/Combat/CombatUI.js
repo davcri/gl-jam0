@@ -9,10 +9,22 @@ export default class extends Phaser.Group {
    */
   constructor(game, pieces) {
     super(game)
+
     this.signals = {
       piecePressed: new Phaser.Signal()
     }
 
+    this.initPieces(pieces)
+    this.initConfirmTotemButton()
+    this.initAttackButton()
+
+    this.addMultiple([
+      ...this.pieces,
+      this.attackButton
+    ])
+  }
+
+  initPieces(pieces) {
     this.pieces = pieces
     this.pieces[0].x = 50
 
@@ -24,13 +36,35 @@ export default class extends Phaser.Group {
       piece.sprite.inputEnabled = true
       piece.sprite.events.onInputDown.add(() => this.onPiecePressed(piece))
     });
+  }
 
+  initConfirmTotemButton() {
     this.confirmTotemButton = new Button(this.game, this, { text: 'confirm' })
     this.confirmTotemButton.visible = false
     this.confirmTotemButton.buttonSpr.tint = Globals.palette[1]
+  }
 
-
-    this.addMultiple(this.pieces)
+  initAttackButton() {
+    this.attackButton = new Button(this.game, this, { text: 'attack'})
+    this.attackButton.scale.set(0.6)
+    this.attackButton.position.set(120, 20)
+    this.attackButton.visible = false
+    this.attackButton.pressed.add(() => {
+      this.attackButton.visible = false
+    })
+    this.attackButton.fns = {
+      show:
+        () => {
+          this.attackButton.alpha = 0
+          this.attackButton.visible = true
+          this.game.add.tween(this.attackButton).to({
+            alpha: 1
+          }, 200, 'Linear', true).onComplete.add(() => {
+            this.game.add.tween(this.attackButton).to({ y: '-0.5' }, 
+              500, 'Quad', true, 300, -1, true);
+          })
+      }
+    }
   }
 
   onPiecePressed(piece) {
@@ -73,17 +107,5 @@ export default class extends Phaser.Group {
     tmp.cacheAsBitmap = true
     tmp.destroy()
     return new Phaser.Sprite(this.game, 0, 0, tmp._cachedSprite.texture)
-  }
-
-  makeAttackButton() {
-    const attack = this.makePanel()
-    attack.anchor.set(0.5)
-
-    const attackIcon = Atlas.getTileById(369)
-    attack.addChild(attackIcon)
-    attackIcon.centerX = attack.centerX
-    attackIcon.centerY = attack.centerY
-
-    return attack
   }
 }

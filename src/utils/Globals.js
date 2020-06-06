@@ -24,6 +24,7 @@ export default {
     0x272744
   ],
   paletteExtra: {
-    green: 0xaaff77
+    green: 0xaaff77,
+    red: 0xaa3322,
   },
 }

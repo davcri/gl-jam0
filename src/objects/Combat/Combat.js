@@ -46,6 +46,7 @@ class PlayerStatsUI extends Phaser.Group {
     this.hp.bottom = this.hpLabel.bottom
 
     this.alpha = 0
+    this.turns = []
 
     this.addMultiple([
       // this.buffLabel,
@@ -106,6 +107,7 @@ export default class extends Phaser.Group {
     this.signals = {
       piecePlacedInTotem: new Phaser.Signal(), // Piece, Position 
       pieceRemovedFromTotem: new Phaser.Signal(),
+      attackButtonPressed: new Phaser.Signal()
     }
 
     // this.characters = characters
@@ -300,25 +302,34 @@ export default class extends Phaser.Group {
   onTotemConfirmed() {
     this.popButton.visible = false
     this.gui.confirmTotemButton.visible = false
+    
+    // calculate who starts
+    const turns = this.turns = this.makeTurns()
+    this.isPlayerTurn = turns[0] === this.player
+    this.changeTurn(this.isPlayerTurn)
+  }
 
-    const turns = this.makeTurns()
-
+  /**
+   * @param {boolean} isPlayerTurn 
+   */
+  changeTurn(isPlayerTurn) {
     this.turnInfo = Atlas.getWhiteSquare()
     this.turnInfo.y = 20
     let turnMessage = ''
-    if (turns[0] === this.player) {
+    if (isPlayerTurn) {
       turnMessage = `${this.player.name}'s turn`
       this.turnInfo.tint = Globals.palette[4]
     } else {
-      turnMessage = `${this.enemies[0].name}'s turns`
+      turnMessage = `${this.enemy.name}'s turns`
       this.turnInfo.tint = Globals.palette[3]
     }
     this.turnInfoText = new Phaser.Text(this.game, 0, 0, turnMessage, Globals.fontStyles.normal)
     this.add(this.turnInfo)
+    this.add(this.turnInfoText)
+    // config and animate it
     this.turnInfo.width = Globals.width + 300
     this.turnInfo.height = Globals.height * 0.5
     this.turnInfo.angle = this.game.rnd.integerInRange(3, 7)
-
     this.turnInfoText.scale.set(0.65)
     this.turnInfoText.wordWrap = true
     this.turnInfoText.wordWrapWidth = Globals.width * 0.9
@@ -326,8 +337,6 @@ export default class extends Phaser.Group {
     this.turnInfoText.angle = this.turnInfo.angle
     this.turnInfoText.centerX = Globals.center.x
     this.turnInfoText.centerY = this.turnInfo.centerY 
-    this.add(this.turnInfoText)
-
     const showTwn = this.game.add.tween(this.turnInfo).from({
       angle: this.game.rnd.integerInRange(-30, 30),
       alpha: 0,
@@ -353,18 +362,118 @@ export default class extends Phaser.Group {
           alpha: 0,
           y: '+70',
         }, 200, Phaser.Easing.Quadratic.Out, true, delay).onComplete.addOnce(() => {
+          if (isPlayerTurn) {
+            this.onPlayerTurnStarted()
+          } else {
+            this.onEnemyTurnStarted()
+          }
           this.turnInfoText.destroy()
         })
       })
     })
+  }
 
-    // this.arrow.visible = true
-    // this.arrow.bottom = turns[0].top
-    // this.arrow.centerX = turns[0].centerX
-    // this.game.add.tween(this.arrow).from({
-    //   y: '-1',
-    //   alpha: 0.8
-    // }, 250, Phaser.Easing.Sinusoidal.InOut, true, 0, -1, true)
+  onPlayerTurnStarted() {
+    this.gui.attackButton.fns.show()
+    this.gui.attackButton.pressed.addOnce(() => {
+      this.signals.attackButtonPressed.dispatch()
+      this.onAttackButtonPressed()
+    })
+  }
+
+  onAttackButtonPressed() {
+    this.doPlayerAttack()
+  }
+
+  doPlayerAttack() {
+    const damage = Math.max(0, this.player.getCurrentStats().attack - this.enemy.stats.defense)
+    console.log('Player attacks with force ', this.player.getCurrentStats().attack)
+    console.log('total damage: ', damage)
+    this.enemy.stats.hp = Math.max(0, this.enemy.stats.hp - damage)
+    this.enemyHpValue.text = this.enemy.stats.hp
+    this.showDamage(damage)
+
+    if (this.enemy.stats.hp <= 0) {
+      // player won!
+      this.onPlayerWon()
+    } else {
+      // start enemy turn
+      this.game.time.events.add(1000, () => {
+        this.isPlayerTurn = false
+        this.changeTurn(this.isPlayerTurn)
+      });
+    }
+  }
+
+  showDamage(damage) {
+    if (this.isPlayerTurn) {
+      this.game.camera.shake(0.001, 200)
+    } else {
+      this.game.camera.shake(0.003, 300)
+    }
+    // TODO
+  }
+
+  onPlayerWon() {
+    // TODO
+    console.log('Player won');
+  }
+
+  onEnemyTurnStarted() {
+    this.game.time.events.add(600, () => {
+      const damage = Math.max(0, this.enemy.stats.attack - this.player.getCurrentStats().defense)
+      this.showDamage(damage)
+      this.player.stats.hp = Math.max(0, this.player.stats.hp - damage)
+      this.playerStatsUI.hp.text = this.player.stats.hp
+      if (this.player.stats.hp <= 0) {
+        this.game.camera.flash(Globals.paletteExtra.red)
+        this.game.time.events.add(1800, () => {
+          this.onGameOver()
+        });
+      } else {
+        this.game.time.events.add(600, () => {
+          this.isPlayerTurn = true
+          this.changeTurn(this.isPlayerTurn = true)
+        });
+      }
+    });
+  }
+
+  onGameOver() {
+    const overlay = Atlas.getWhiteSquare()
+    overlay.tint = Globals.paletteExtra.red
+    overlay.width = Globals.width
+    overlay.height = Globals.height
+    overlay.alpha = 0
+    this.add(overlay)
+
+    const gameovertext = new Phaser.Text(this.game, 0, 0,
+      'GAME OVER', Globals.fontStyles.normal)
+    gameovertext.scale.set(0.6)
+    gameovertext.centerX = Globals.center.x
+    gameovertext.centerY = Globals.center.y
+
+    const touchText = new Phaser.Text(this.game, 0, 0,
+      'touch to restart', Globals.fontStyles.normal)
+    touchText.scale.set(0.3)
+    touchText.alpha = 0.5
+    touchText.top = gameovertext.bottom + 10
+    touchText.centerX = Globals.center.x
+    
+    this.add(touchText)
+    this.add(gameovertext)
+
+    this.game.add.tween(touchText).to({ alpha: 1 }, 500, 'Quad', true, 0);
+    this.game.add.tween(gameovertext).to({ alpha: 1 }, 500, 'Quad', true, 0);
+    
+    this.game.add.tween(overlay).to({
+      alpha: 1
+    }, 500, 'Quad', true).onComplete.addOnce(() => {
+      overlay.inputEnabled = true
+      overlay.events.onInputDown.addOnce(() => {
+        this.game.state.restart()
+      })
+    })
   }
 
   setPositions() {
@@ -420,7 +529,7 @@ export default class extends Phaser.Group {
   }
 
   start() {
-    const enemy = new Enemy(this.game, 0)
+    const enemy = this.enemy = new Enemy(this.game, 0)
     enemy.scale.set(1.2)
     enemy.x = Globals.width - 60
     enemy.y = 40
