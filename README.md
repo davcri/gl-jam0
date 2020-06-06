@@ -17,5 +17,5 @@ npm run deploy
 
 ## credits
 
-Music: “Final Sacrifice”, from PlayOnLoop.com
+Music: from PlayOnLoop.com
 Licensed under Creative Commons by Attribution 4.0
