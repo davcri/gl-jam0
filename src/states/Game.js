@@ -10,6 +10,11 @@ export default class extends Phaser.State {
     Input.init(this.game)
     // make the canvas fit the available space
     this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    this.scale.windowConstraints = {
+      bottom: 'layout',
+      right: 'layout'
+    }
+    this.scale.pageAlignHorizontally = true
     this.game.stage.smoothed = false
     this.camera.roundPx = false
     // camera config

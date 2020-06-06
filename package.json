@@ -9,7 +9,7 @@
         "build": "webpack --config webpack.production.config.js",
         "cordova": "webpack --config webpack.cordova.config.js",
         "test": "eslint './src/**/*.js'",
-        "deploy": "npm run build && butler push ./build/ crystalbit/gljam:html5"
+        "deploy": "npm run build && butler push ./build/ crystalbit/totemup:html5"
     },
     "license": "MIT",
     "devDependencies": {
