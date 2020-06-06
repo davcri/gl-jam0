@@ -8,7 +8,7 @@ export default class Enemy extends Phaser.Group {
      * @type {import('./EnemyData')}
      */
     const enemyData = this.game.rnd.pick(Enemies.enemyData[tier])
-    this.name = `Enemy - ${enemyData.name}`
+    this.name = `${enemyData.name}`
     this.sprite = Atlas.getTileById(enemyData.tileId)
     this.add(this.sprite)
 

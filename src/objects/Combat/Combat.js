@@ -69,7 +69,6 @@ class PlayerStatsUI extends Phaser.Group {
     this.atck.text = this.player.stats.attack + this.player.combatStats.attack
     this.def.text = this.player.stats.defense + this.player.combatStats.defense
     this.speed.text = this.player.stats.speed + this.player.combatStats.speed
-
     this.animate(what)
   }
 
@@ -89,6 +88,10 @@ class PlayerStatsUI extends Phaser.Group {
         break;
     }
     if (elem == undefined) return
+
+    if (this.game == null) {
+      return
+    }
     this.game.add.tween(elem).to({
       alpha: 0,
       y: '-0.5'
@@ -101,13 +104,14 @@ export default class extends Phaser.Group {
    * @param {Phaser.Game} game 
    * @param {import("../Character").default[]} characters 
    */
-  constructor(game, characters) {
-    super(game);
+  constructor(game, characters, parent) {
+    super(game, parent);
 
     this.signals = {
       piecePlacedInTotem: new Phaser.Signal(), // Piece, Position 
       pieceRemovedFromTotem: new Phaser.Signal(),
-      attackButtonPressed: new Phaser.Signal()
+      attackButtonPressed: new Phaser.Signal(),
+      combatEnded: new Phaser.Signal()
     }
 
     // this.characters = characters
@@ -203,6 +207,7 @@ export default class extends Phaser.Group {
     this.gui.confirmTotemButton.released.add(this.onTotemConfirmed, this)
     this.totem.signals.totemBuilt.add(this.onTotemBuilt, this)
     this.popButton.released.add(this.onPopButtonReleased, this)
+    this.onDestroy.addOnce(this.onDestroyCalled, this)
   }
 
   /**
@@ -264,39 +269,6 @@ export default class extends Phaser.Group {
     this.gui.confirmTotemButton.visible = false
     this.updatePopButton()
     this.updatePlayerStats()
-  }
-
-  updatePlayerStats() {
-    this.player.resetCombatStats()
-
-    // if totem is empty
-    if (this.totem.freeSlots === Totem.MAX_SIZE) {
-      return
-    }
-
-    for (let index = 0; index < this.totem.pieces.length; index++) {
-      const piece = this.totem.pieces[index];
-      if (piece == null || piece.placeholder) {
-        continue
-      } else {
-        switch (index) {
-          case 0:
-            // update speed
-            this.player.updateSpeed(piece.stats.speed)
-            break;
-          case 1:
-            // update atk
-            this.player.updateAttack(piece.stats.attack)
-            break
-          case 2:
-            // update def
-            this.player.updateDefense(piece.stats.defense)
-            break
-          default:
-            break;
-        }
-      }
-    }
   }
 
   onTotemConfirmed() {
@@ -392,6 +364,10 @@ export default class extends Phaser.Group {
     this.enemy.stats.hp = Math.max(0, this.enemy.stats.hp - damage)
     this.enemyHpValue.text = this.enemy.stats.hp
     this.showDamage(damage)
+    // flash
+    this.game.add.tween(this.enemy).to({
+      alpha: 0
+    }, 40, Phaser.Easing.Quadratic.InOut, true, 0, 3, true)
 
     if (this.enemy.stats.hp <= 0) {
       // player won!
@@ -415,8 +391,25 @@ export default class extends Phaser.Group {
   }
 
   onPlayerWon() {
-    // TODO
-    console.log('Player won');
+    const defeatTwn = this.game.add.tween(this.enemy).to({
+      x: '-0.3',
+      angle: '-2',
+      alpha: 0
+    }, 100, Phaser.Easing.Quadratic.InOut, true, 0, 7)
+    defeatTwn.onComplete.addOnce(() => {
+      this.enemy.destroy()
+      this.game.time.events.add(500, () => {
+        this.onCombatEnded()
+      });
+    })
+  }
+
+  onCombatEnded() {
+    this.game.add.tween(this).to({
+      alpha: 0,
+    }, 300, 'Quad', true).onComplete.addOnce(() => {
+      this.signals.combatEnded.dispatch()
+    })
   }
 
   onEnemyTurnStarted() {
@@ -425,6 +418,10 @@ export default class extends Phaser.Group {
       this.showDamage(damage)
       this.player.stats.hp = Math.max(0, this.player.stats.hp - damage)
       this.playerStatsUI.hp.text = this.player.stats.hp
+      this.game.add.tween(this.player).to({
+        alpha: 0
+      }, 40, Phaser.Easing.Quadratic.InOut, true, 0, 3, true)
+
       if (this.player.stats.hp <= 0) {
         this.game.camera.flash(Globals.paletteExtra.red)
         this.game.time.events.add(1800, () => {
@@ -476,6 +473,39 @@ export default class extends Phaser.Group {
     })
   }
 
+  updatePlayerStats() {
+    this.player.resetCombatStats()
+
+    // if totem is empty
+    if (this.totem.freeSlots === Totem.MAX_SIZE) {
+      return
+    }
+
+    for (let index = 0; index < this.totem.pieces.length; index++) {
+      const piece = this.totem.pieces[index];
+      if (piece == null || piece.placeholder) {
+        continue
+      } else {
+        switch (index) {
+          case 0:
+            // update speed
+            this.player.updateSpeed(piece.stats.speed)
+            break;
+          case 1:
+            // update atk
+            this.player.updateAttack(piece.stats.attack)
+            break
+          case 2:
+            // update def
+            this.player.updateDefense(piece.stats.defense)
+            break
+          default:
+            break;
+        }
+      }
+    }
+  }
+
   setPositions() {
     const vSep = 12
     const yStart = 24
@@ -498,9 +528,6 @@ export default class extends Phaser.Group {
     this.enemyHpValue.position.set(180 + offsetx, this.enemyHpText.y)
 
     this.popButton.scale.set(0.5)
-
-    // this.gui.bottom = Globals.height - 8
-    // this.gui.centerX = Globals.width / 2
   }
 
   makeTurns() {
@@ -509,12 +536,11 @@ export default class extends Phaser.Group {
       console.error('No active enemy');
     }
 
-    // TODO: remove forced player
-    return [this.player, activeEnemy]
-    this.player.combatStats.speed
-    return [activeEnemy, this.player].sort((a, b) => {
-      return (b.stats.speed - a.stats.speed)
-    })
+    if (this.player.getCurrentStats().speed >= this.enemy.stats.speed) {
+      return [this.player, this.enemy]
+    } else {
+      return [this.enemy, this.player]
+    }
   }
 
   makePieces() {
@@ -546,11 +572,6 @@ export default class extends Phaser.Group {
       alpha: 1,
     }, 200, 'Linear', true, 500)
 
-    // this.turns = this.makeTurns()
-    // this.turns.forEach((el) => {
-    //   console.log(el.name, el.stats.speed);
-    // })
-
     this.game.add.tween(this.gui).to({ alpha: 1 }, 200, 'Quad', true, 500);
     this.game.add.tween(this).to({ alpha: 1 }, 200, 'Quad', true, 500);
   }
@@ -570,5 +591,10 @@ export default class extends Phaser.Group {
     this.popButton.visible = true
     this.popButton.centerY = this.totem.topPiece.centerY
     this.popButton.left = this.totem.topPiece.right + 5
+  }
+
+  onDestroyCalled() {
+    // attempt to fix a bug in order to remove a workaround.
+    this.player.signals.statsUpdated.remove(this.playerStatsUI.updateStats)
   }
 }

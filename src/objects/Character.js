@@ -11,6 +11,10 @@ export default class extends Phaser.Group {
       statsUpdated: new Phaser.Signal() // dispatched when stats are updated because a new piece was added to the totem
     }
 
+    this.data = {
+      lastExplorationPos: new Phaser.Point()
+    }
+
     /**
      * Base stats, they change only on level up.
      * Used as a base for combat stats
@@ -18,7 +22,7 @@ export default class extends Phaser.Group {
     this.stats = new Stats({
       attack: 10 + this.game.rnd.integerInRange(0, 4),
       defense: 2 + this.game.rnd.integerInRange(0, 4),
-      hp: 40 + this.game.rnd.integerInRange(0, 20),
+      hp: 16 + this.game.rnd.integerInRange(1, 5),
       speed: this.game.rnd.integerInRange(4, 15)
     })
 
@@ -28,7 +32,6 @@ export default class extends Phaser.Group {
     this.combatStats = new Stats({
       attack: 0,
       defense: 0,
-      hp: 0,
       speed: 0
     });
 

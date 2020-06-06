@@ -10,6 +10,8 @@ export default class GameContainer extends Phaser.Group {
   constructor(game) {
     super(game)
 
+    this.fights = Array.from(Globals.dungeon.fights)
+
     this.sfx = new SFX()
     this.showStartScreen()
     // ms since a walk button was pressed. Used for audio
@@ -72,8 +74,9 @@ export default class GameContainer extends Phaser.Group {
 
     // const sfx = new SFX()
     this.characters = this.makeCharacters()
+    this.player = this.characters[0]
     this.dungeon = new Dungeon(this.game)
-    this.combat = new Combat(this.game, this.characters)
+    this.combat = new Combat(this.game, this.characters, this)
 
     this.addMultiple([
       this.dungeon,
@@ -81,6 +84,42 @@ export default class GameContainer extends Phaser.Group {
       this.combat,
     ])
     this.setPositions()
+    this.connectSignals()
+  }
+
+  connectSignals() {
+    this.connectCombatSignals()
+  }
+
+  
+  resetCombat() {
+    this.player.combatStats.attack = 0
+    this.player.combatStats.defense = 0
+    this.player.combatStats.speed = 0
+    
+    this.combat.destroy()
+    this.game.time.events.add(1, () => {
+      this.combat = new Combat(this.game, this.characters, this)
+      this.add(this.combat)
+      this.connectCombatSignals()
+    });
+  }
+  
+  connectCombatSignals() {
+    this.combat.signals.combatEnded.add(this.onCombatEnded, this)
+  }
+
+  onCombatEnded() {
+    this.resetCombat()
+    // position player
+    const twn = this.game.add.tween(this.player).to({
+      x: this.player.data.lastExplorationPos.x,
+      y: this.player.data.lastExplorationPos.y
+    }, 500, Phaser.Easing.Exponential.Out, true, 200)
+    this.game.add.tween(this.dungeon).to({ alpha: 1 }, 150, Phaser.Easing.Quartic.Out, true)
+    twn.onComplete.addOnce(() => {
+      this.mode = 'exploration'
+    })
   }
 
   setPositions() {
@@ -118,30 +157,31 @@ export default class GameContainer extends Phaser.Group {
         })
       }
 
-      if (this.dungeon.terrain[0].x < -60 && this.mode === 'exploration') {
+      if (this.combat) {
+        console.log(this.combat.name)
+      }
+      if (this.mode === 'exploration' && this.fights.length > 0 && this.dungeon.terrain[0].x < -this.fights[0] * Globals.dungeon.tileSize) {
+        this.fights.shift()
         this.mode = 'combat'
         this.setCombatPosition()
         this.combat.start()
       }
     } else if (this.mode === 'combat') {
-
+      //
     }
   }
 
   setCombatPosition() {
-    this.characters.forEach((c, idx) => {
-      c.stop()
-      this.game.camera.flash()
-      // hide dungeon
-      this.game.add.tween(this.dungeon).to({ alpha: 0 }, 150, Phaser.Easing.Quartic.Out, true)
-      // position character
-      this.game.add.tween(c).to({
-        x: 20,
-        y: 100
-        // x: 50 - idx * 15,
-        // y: 25 + 32 * idx
-      }, 500, Phaser.Easing.Exponential.Out, true, 200 + idx * 130)
-    })
+    this.player.data.lastExplorationPos.copyFrom(this.player.position)
+    this.player.stop()
+    this.game.camera.flash()
+    // hide dungeon
+    this.game.add.tween(this.dungeon).to({ alpha: 0 }, 150, Phaser.Easing.Quartic.Out, true)
+    // position player
+    this.game.add.tween(this.player).to({
+      x: 20,
+      y: 100
+    }, 500, Phaser.Easing.Exponential.Out, true, 200)
   }
 
   makeCharacters(characterCount = 1) {

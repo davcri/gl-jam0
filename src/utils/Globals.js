@@ -27,4 +27,10 @@ export default {
     green: 0xaaff77,
     red: 0xaa3322,
   },
+  dungeon: {
+    length: 60, // in tiles
+    // fights: [50, 85, 120], // x coordinate for the fights
+    fights: [5, 10, 15],
+    tileSize: 16
+  },
 }

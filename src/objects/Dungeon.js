@@ -11,16 +11,25 @@ export default class extends Phaser.Group {
    * @param {Phaser.Game} game 
    * @param {DungeonConfig}
    */
-  constructor(game, { hTiles = 20 } = {}) {
+  constructor(game, { hTiles = Globals.dungeon.length } = {}) {
     super(game, null);
 
     this.terrain = this.makeTerrain(hTiles)
+    this.helpText = this.makeHelpText()
 
     this.addMultiple([
       ...this.terrain,
+      this.helpText
     ])
 
     this.setPosition()
+  }
+
+  makeHelpText() {
+    const helpText = new Phaser.Text(this.game, 0, 0, 'Press "RIGHT ARROW" or "D" to move forward', Globals.fontStyles.normal)
+    helpText.scale.set(0.3)
+    helpText.alpha = 0.4
+    return helpText
   }
 
   /**
@@ -49,6 +58,7 @@ export default class extends Phaser.Group {
     this.terrain.forEach((tile) => {
       tile.bottom = Globals.height - 20
     })
+    this.helpText.position.set(50, 30)
   }
 
   move(amount) {
@@ -60,5 +70,6 @@ export default class extends Phaser.Group {
           // m.x += this.topMarkers.length * (m.width + this.separation)
       }
     });
+    this.helpText.position.x += amount * 0.95
   }
 }
