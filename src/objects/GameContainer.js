@@ -19,6 +19,8 @@ export default class GameContainer extends Phaser.Group {
   }
 
   showStartScreen() {
+    this.sfx.startGame()
+
     const amount = 8
     this.sprs = []
     const randomAnim = (spr, index) => {
@@ -60,7 +62,7 @@ export default class GameContainer extends Phaser.Group {
     titleText.centerX = Globals.center.x
 
     this.game.input.onDown.addOnce(() => {
-      this.sfx.startGame()
+      this.sfx.kick()
       this.game.camera.flash()
       titleText.destroy()
       touchText.destroy()
@@ -70,6 +72,17 @@ export default class GameContainer extends Phaser.Group {
   }
 
   startGame() {
+    Globals.music = this.game.add.audio('music')
+    Globals.music.play('', 0, 0.2, true)
+
+    Globals.sounds.hit = this.game.add.audio('hit')
+    Globals.sounds.totemPiece = this.game.add.audio('totemPiece')
+    Globals.sounds.pieceRemoved = this.game.add.audio('pieceRemoved')
+    Globals.sounds.uiPress = this.game.add.audio('uiPress')
+    Globals.sounds.explosion = this.game.add.audio('explosion')
+    Globals.sounds.battleStart = this.game.add.audio('battleStart')
+    Globals.sounds.gameover = this.game.add.audio('gameover')
+
     this.mode = 'exploration'
 
     // const sfx = new SFX()
@@ -79,8 +92,8 @@ export default class GameContainer extends Phaser.Group {
     this.combat = new Combat(this.game, this.characters, this)
 
     this.addMultiple([
-      this.dungeon,
       ...this.characters,
+      this.dungeon,
       this.combat,
     ])
     this.setPositions()
@@ -96,7 +109,7 @@ export default class GameContainer extends Phaser.Group {
     this.player.combatStats.attack = 0
     this.player.combatStats.defense = 0
     this.player.combatStats.speed = 0
-    
+
     this.combat.destroy()
     this.game.time.events.add(1, () => {
       this.combat = new Combat(this.game, this.characters, this)
@@ -157,14 +170,12 @@ export default class GameContainer extends Phaser.Group {
         })
       }
 
-      if (this.combat) {
-        console.log(this.combat.name)
-      }
       if (this.mode === 'exploration' && this.fights.length > 0 && this.dungeon.terrain[0].x < -this.fights[0] * Globals.dungeon.tileSize) {
         this.fights.shift()
         this.mode = 'combat'
         this.setCombatPosition()
         this.combat.start()
+        this.bringToTop(this.combat)
       }
     } else if (this.mode === 'combat') {
       //

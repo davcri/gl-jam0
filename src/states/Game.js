@@ -17,7 +17,16 @@ export default class extends Phaser.State {
     // this.camera.bounds.setTo(0, 0, this.dungeon.right, Globals.height)
   }
 
-  preload() {}
+  preload() {
+    this.game.load.audio('music', './assets/music/finalsacrifice.ogg')
+    this.game.load.audio('hit', './assets/sounds/hit4.ogg')
+    this.game.load.audio('totemPiece', './assets/sounds/hit5.ogg')
+    this.game.load.audio('pieceRemoved', './assets/sounds/minimize_003.ogg')
+    this.game.load.audio('uiPress', './assets/sounds/tick_001.ogg')
+    this.game.load.audio('explosion', './assets/sounds/explosion4.ogg')
+    this.game.load.audio('battleStart', './assets/sounds/upgrade1.ogg')
+    this.game.load.audio('gameover', './assets/sounds/gameover4.ogg')
+  }
 
   create() {
     this.gameContainer = new GameContainer(this.game)

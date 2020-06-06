@@ -33,4 +33,7 @@ export default {
     fights: [5, 10, 15],
     tileSize: 16
   },
+  sounds: {
+    hit: null,
+  }
 }

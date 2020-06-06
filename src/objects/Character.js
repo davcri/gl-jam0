@@ -20,9 +20,9 @@ export default class extends Phaser.Group {
      * Used as a base for combat stats
      */
     this.stats = new Stats({
-      attack: 10 + this.game.rnd.integerInRange(0, 4),
+      attack: 1 + this.game.rnd.integerInRange(0, 4),
       defense: 2 + this.game.rnd.integerInRange(0, 4),
-      hp: 16 + this.game.rnd.integerInRange(1, 5),
+      hp: 2 + this.game.rnd.integerInRange(1, 5),
       speed: this.game.rnd.integerInRange(4, 15)
     })
 

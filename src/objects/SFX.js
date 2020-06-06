@@ -20,11 +20,14 @@ export default class SFX {
 
     Tone.Transport.bpm.value = 120 // 120bpm is default
 
-    this.membraneSynth.triggerAttackRelease('c1')
     // this.demoFilters()
     // this.demo3()
     // this.demo5Effects()
     // this.demo4Synths()
+  }
+
+  kick() {
+    this.membraneSynth.triggerAttackRelease('c1')
   }
 
   startGame() {

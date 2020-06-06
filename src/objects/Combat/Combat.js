@@ -222,6 +222,7 @@ export default class extends Phaser.Group {
         return
       }
       
+      Globals.sounds.uiPress.play()
       // save current position in data.previousGuiPos
       piece.data.previousGuiPos.copyFrom(piece)
       const target = this.totem.getNextPiecePosition()
@@ -240,6 +241,7 @@ export default class extends Phaser.Group {
   }
 
   onPiecePlacedInTotem(piece, totemPosition) {
+    Globals.sounds.totemPiece.play()
     this.updatePopButton()
     this.updatePlayerStats()
   }
@@ -265,6 +267,7 @@ export default class extends Phaser.Group {
   }
 
   onPieceRemovedFromTotem() {
+    Globals.sounds.pieceRemoved.play()
     this.totem.pop()
     this.gui.confirmTotemButton.visible = false
     this.updatePopButton()
@@ -272,6 +275,7 @@ export default class extends Phaser.Group {
   }
 
   onTotemConfirmed() {
+    Globals.sounds.uiPress.play()
     this.popButton.visible = false
     this.gui.confirmTotemButton.visible = false
     
@@ -316,6 +320,7 @@ export default class extends Phaser.Group {
       height: '+70'
     }, 230, Phaser.Easing.Quadratic.In, true)
     showTwn.onComplete.add(() => {
+      Globals.sounds.explosion.play()
       // TODO: add hide on click
       // TODO: prevent input when shown
       this.game.camera.shake(0.003, 180)
@@ -368,6 +373,7 @@ export default class extends Phaser.Group {
     this.game.add.tween(this.enemy).to({
       alpha: 0
     }, 40, Phaser.Easing.Quadratic.InOut, true, 0, 3, true)
+    Globals.sounds.hit.play()
 
     if (this.enemy.stats.hp <= 0) {
       // player won!
@@ -416,6 +422,7 @@ export default class extends Phaser.Group {
     this.game.time.events.add(600, () => {
       const damage = Math.max(0, this.enemy.stats.attack - this.player.getCurrentStats().defense)
       this.showDamage(damage)
+      Globals.sounds.hit.play()
       this.player.stats.hp = Math.max(0, this.player.stats.hp - damage)
       this.playerStatsUI.hp.text = this.player.stats.hp
       this.game.add.tween(this.player).to({
@@ -437,12 +444,16 @@ export default class extends Phaser.Group {
   }
 
   onGameOver() {
+    Globals.music.stop()
+    Globals.sounds.gameover.play()
     const overlay = Atlas.getWhiteSquare()
     overlay.tint = Globals.paletteExtra.red
     overlay.width = Globals.width
     overlay.height = Globals.height
     overlay.alpha = 0
     this.add(overlay)
+    this.bringToTop(overlay)
+    this.parent.bringToTop(this)
 
     const gameovertext = new Phaser.Text(this.game, 0, 0,
       'GAME OVER', Globals.fontStyles.normal)
@@ -468,6 +479,7 @@ export default class extends Phaser.Group {
     }, 500, 'Quad', true).onComplete.addOnce(() => {
       overlay.inputEnabled = true
       overlay.events.onInputDown.addOnce(() => {
+        Globals.music.stop()
         this.game.state.restart()
       })
     })
@@ -555,6 +567,7 @@ export default class extends Phaser.Group {
   }
 
   start() {
+    Globals.sounds.battleStart.play()
     const enemy = this.enemy = new Enemy(this.game, 0)
     enemy.scale.set(1.2)
     enemy.x = Globals.width - 60
