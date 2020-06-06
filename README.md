@@ -17,7 +17,7 @@ npm run deploy
 
 ## Credits
 
-Kenney for all the graphic assets.
+Kenney for all the graphic assets (and some audio files)
 
 Music: from PlayOnLoop.com
 Licensed under Creative Commons by Attribution 4.0
