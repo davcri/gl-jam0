@@ -366,8 +366,8 @@ export default class extends Phaser.Group {
     const damage = Math.max(0, this.player.getCurrentStats().attack - this.enemy.stats.defense)
     console.log('Player attacks with force ', this.player.getCurrentStats().attack)
     console.log('total damage: ', damage)
-    this.enemy.stats.hp = Math.max(0, this.enemy.stats.hp - damage)
-    this.enemyHpValue.text = this.enemy.stats.hp
+    this.enemy.currentHp = Math.max(0, this.enemy.currentHp - damage)
+    this.enemyHpValue.text = this.enemy.currentHp
     this.showDamage(damage)
     // flash
     this.game.add.tween(this.enemy).to({
@@ -375,7 +375,7 @@ export default class extends Phaser.Group {
     }, 40, Phaser.Easing.Quadratic.InOut, true, 0, 3, true)
     Globals.sounds.hit.play()
 
-    if (this.enemy.stats.hp <= 0) {
+    if (this.enemy.currentHp <= 0) {
       // player won!
       this.onPlayerWon()
     } else {
@@ -580,7 +580,7 @@ export default class extends Phaser.Group {
     this.enemyAttackValue.text = enemy.stats.attack
     this.enemySpeedValue.text = enemy.stats.speed
     this.enemyDefValue.text = enemy.stats.defense
-    this.enemyHpValue.text = enemy.stats.hp
+    this.enemyHpValue.text = enemy.currentHp
 
     this.game.add.tween(this.playerStatsUI).to({
       alpha: 1,
