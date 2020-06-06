@@ -149,6 +149,8 @@ export default class GameContainer extends Phaser.Group {
 
   update() {
     if (this.mode === 'exploration') {
+      Input.poll()
+      
       if (Input.actioLeft() && this.leftMostCharacter.left > this.dungeon.left) {
         this.dungeon.move(this.moveSpeed)
         this.characters.forEach(c => {
