@@ -364,8 +364,6 @@ export default class extends Phaser.Group {
 
   doPlayerAttack() {
     const damage = Math.max(0, this.player.getCurrentStats().attack - this.enemy.stats.defense)
-    console.log('Player attacks with force ', this.player.getCurrentStats().attack)
-    console.log('total damage: ', damage)
     this.enemy.currentHp = Math.max(0, this.enemy.currentHp - damage)
     this.enemyHpValue.text = this.enemy.currentHp
     this.showDamage(damage)

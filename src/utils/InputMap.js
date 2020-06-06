@@ -49,7 +49,6 @@ class InputMap {
   }
 
   actionRight() {
-    console.log()
     return this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) ||
       this.game.input.keyboard.isDown(Phaser.Keyboard.D) || this.touch.rightAction
   }
