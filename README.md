@@ -15,7 +15,9 @@ npm run dev
 npm run deploy
 ```
 
-## credits
+## Credits
+
+Kenney for all the graphic assets.
 
 Music: from PlayOnLoop.com
 Licensed under Creative Commons by Attribution 4.0
