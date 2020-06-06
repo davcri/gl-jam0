@@ -19,6 +19,8 @@ export default class extends Phaser.State {
 
   preload() {
     this.game.load.audio('music', './assets/music/chamber.ogg')
+    this.game.load.audio('musicwin', './assets/music/retrocomedy.ogg')
+
     this.game.load.audio('hit', './assets/sounds/hit4.ogg')
     this.game.load.audio('totemPiece', './assets/sounds/hit5.ogg')
     this.game.load.audio('pieceRemoved', './assets/sounds/minimize_003.ogg')
@@ -26,6 +28,7 @@ export default class extends Phaser.State {
     this.game.load.audio('explosion', './assets/sounds/explosion4.ogg')
     this.game.load.audio('battleStart', './assets/sounds/upgrade1.ogg')
     this.game.load.audio('gameover', './assets/sounds/gameover4.ogg')
+    this.game.load.audio('jump', './assets/sounds/jump2.ogg')
   }
 
   create() {

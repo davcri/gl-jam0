@@ -12,6 +12,12 @@ export default {
         fontSize: 32,
         font: 'Squarebit',
         fill: '#fbf5ef',
+    },
+    victory: {
+      font: 'Squarebit',
+      fontSize: 32,
+      font: 'Squarebit',
+      fill: '#272744',
     }
   },
   // PALETTE https://lospec.com/palette-list/oil-6
@@ -28,9 +34,8 @@ export default {
     red: 0xaa3322,
   },
   dungeon: {
-    length: 60, // in tiles
-    // fights: [50, 85, 120], // x coordinate for the fights
-    fights: [5, 10, 15],
+    length: 65, // in tiles
+    fights: [30, 40, 50, 60],
     tileSize: 16
   },
   sounds: {

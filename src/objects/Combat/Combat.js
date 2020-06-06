@@ -411,6 +411,7 @@ export default class extends Phaser.Group {
   }
 
   onCombatEnded() {
+    Globals.sounds.jump.play()
     this.game.add.tween(this).to({
       alpha: 0,
     }, 300, 'Quad', true).onComplete.addOnce(() => {

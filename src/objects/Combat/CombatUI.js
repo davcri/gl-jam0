@@ -18,9 +18,16 @@ export default class extends Phaser.Group {
     this.initConfirmTotemButton()
     this.initAttackButton()
 
+    this.bar = Atlas.getWhiteSquare()
+    this.bar.alpha = 0.2
+    this.bar.width = Globals.width
+    this.bar.height = 1
+    this.bar.y = Globals.height - 30
+
     this.addMultiple([
       ...this.pieces,
-      this.attackButton
+      this.attackButton,
+      this.bar
     ])
   }
 

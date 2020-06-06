@@ -22,7 +22,7 @@ export default class extends Phaser.Group {
     this.stats = new Stats({
       attack: 8 + this.game.rnd.integerInRange(0, 4),
       defense: 2 + this.game.rnd.integerInRange(0, 4),
-      hp: 13 + this.game.rnd.integerInRange(1, 5),
+      hp: 33 + this.game.rnd.integerInRange(1, 5),
       speed: this.game.rnd.integerInRange(4, 15)
     })
 

@@ -16,13 +16,22 @@ export default class extends Phaser.Group {
 
     this.terrain = this.makeTerrain(hTiles)
     this.helpText = this.makeHelpText()
+    this.exit = this.makeExit()
 
     this.addMultiple([
       ...this.terrain,
-      this.helpText
+      this.helpText,
+      this.exit
     ])
 
     this.setPosition()
+  }
+
+  makeExit() {
+    const exit = Atlas.getTileById(434)
+    exit.scale.set(2)
+    exit.tint = Globals.palette[1]
+    return exit
   }
 
   makeHelpText() {
@@ -59,6 +68,9 @@ export default class extends Phaser.Group {
       tile.bottom = Globals.height - 20
     })
     this.helpText.position.set(50, 30)
+    const last = this.terrain[this.terrain.length - 1]
+    this.exit.right = last.right
+    this.exit.bottom = last.top
   }
 
   move(amount) {
@@ -71,5 +83,6 @@ export default class extends Phaser.Group {
       }
     });
     this.helpText.position.x += amount * 0.95
+    this.exit.position.x += amount
   }
 }

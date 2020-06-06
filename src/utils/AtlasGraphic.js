@@ -57,7 +57,11 @@ class AtlasGraphic {
 
   getRandomWeapon() {
     const tileIds = [
-      369, 370, 468, 375, 321, 609, 850, 191
+      // armi serie
+      // 369, 370, 375, 321, 
+      468, 609, 850, 191,
+      //stupide
+      637, 684, 1002, 804, 995, 752, 493
     ]
     return this.getTileById(this.game.rnd.pick(tileIds))
   }
