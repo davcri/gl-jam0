@@ -18,7 +18,7 @@ export default class extends Phaser.State {
   }
 
   preload() {
-    this.game.load.audio('music', './assets/music/finalsacrifice.ogg')
+    this.game.load.audio('music', './assets/music/chamber.ogg')
     this.game.load.audio('hit', './assets/sounds/hit4.ogg')
     this.game.load.audio('totemPiece', './assets/sounds/hit5.ogg')
     this.game.load.audio('pieceRemoved', './assets/sounds/minimize_003.ogg')
